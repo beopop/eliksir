@@ -3,7 +3,16 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 function hprl_generate_excel( array $rows ) {
     if ( ! class_exists( 'ZipArchive' ) ) {
-        return false;
+        $html = "<table><tbody>";
+        foreach ( $rows as $row ) {
+            $html .= '<tr>';
+            foreach ( $row as $cell ) {
+                $html .= '<td>' . esc_html( $cell ) . '</td>';
+            }
+            $html .= '</tr>';
+        }
+        $html .= '</tbody></table>';
+        return $html;
     }
     $temp = tempnam( sys_get_temp_dir(), 'hprl' );
     $zip = new ZipArchive();
@@ -61,8 +70,16 @@ function hprl_download_excel( array $rows, $filename = 'results.xlsx' ) {
         }
     }
     flush();
-    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    if ( class_exists( 'ZipArchive' ) ) {
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+    } else {
+        if ( substr( $filename, -5 ) === '.xlsx' ) {
+            $filename = substr( $filename, 0, -1 );
+        }
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment; filename="' . str_replace('.xlsx', '.xls', $filename) . '"');
+    }
     header('Content-Length: ' . strlen($xlsx));
     echo $xlsx;
     exit;
