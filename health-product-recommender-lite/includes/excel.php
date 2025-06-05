@@ -53,6 +53,14 @@ function hprl_download_excel( array $rows, $filename = 'results.xlsx' ) {
     if ( $xlsx === false ) {
         return false;
     }
+    if ( function_exists( 'wp_ob_end_flush_all' ) ) {
+        wp_ob_end_flush_all();
+    } else {
+        while ( ob_get_level() ) {
+            ob_end_clean();
+        }
+    }
+    flush();
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
     header('Content-Length: ' . strlen($xlsx));
