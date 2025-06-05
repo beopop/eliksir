@@ -17,6 +17,7 @@ define( 'HPRL_URL', plugin_dir_url( __FILE__ ) );
 define( 'HPRL_TABLE', $GLOBALS['wpdb']->prefix . 'health_quiz_results' );
 
 add_action( 'plugins_loaded', 'hprl_maybe_create_table' );
+add_action( 'init', 'hprl_maybe_create_table' );
 function hprl_maybe_create_table() {
     global $wpdb;
     if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", HPRL_TABLE ) ) != HPRL_TABLE ) {
