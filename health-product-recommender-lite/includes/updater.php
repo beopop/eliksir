@@ -22,6 +22,16 @@ function hprl_get_github_release() {
         return false;
     }
 
+    $data->asset_url = '';
+    if ( ! empty( $data->assets ) ) {
+        foreach ( $data->assets as $asset ) {
+            if ( isset( $asset->name ) && $asset->name === HPRL_UPDATE_ASSET && ! empty( $asset->browser_download_url ) ) {
+                $data->asset_url = $asset->browser_download_url;
+                break;
+            }
+        }
+    }
+
     return $data;
 }
 
@@ -43,7 +53,7 @@ function hprl_check_plugin_update( $transient ) {
             'plugin'      => $plugin,
             'new_version' => $new_version,
             'url'         => $release->html_url,
-            'package'     => $release->zipball_url,
+            'package'     => $release->asset_url ? $release->asset_url : $release->zipball_url,
         );
     }
 
@@ -66,7 +76,7 @@ function hprl_plugin_update_info( $res, $action, $args ) {
     $res->version       = ltrim( $release->tag_name, 'v' );
     $res->author        = '<a href="https://beohosting.com">BeoHosting</a>';
     $res->homepage      = $release->html_url;
-    $res->download_link = $release->zipball_url;
+    $res->download_link = $release->asset_url ? $release->asset_url : $release->zipball_url;
     $res->sections      = array( 'description' => $release->body );
 
     return $res;

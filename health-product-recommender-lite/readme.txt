@@ -8,3 +8,8 @@ License: GPL2+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Lagani, responzivni WordPress plugin koji generiše preporuke proizvoda na osnovu zdravstvenog upitnika.
+
+== Changelog ==
+
+= 1.3.1 =
+* Improved GitHub update handler. Plugin now checks the `beopop/eliksir` repository for new releases and installs the bundled `health-product-recommender-lite.zip` asset.
