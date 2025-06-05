@@ -31,7 +31,7 @@ function hprl_quiz_shortcode() {
         <div class="hprl-step" data-step="1">
             <label>Ime i prezime*<br><input type="text" id="hprl-name" required></label>
             <label>Email*<br><input type="email" id="hprl-email" required></label>
-            <label>Telefon*<br><input type="text" id="hprl-phone" required></label>
+            <label>Telefon*<br><input type="tel" id="hprl-phone" pattern="[0-9]+" title="Samo brojevi" required></label>
             <label>Godina rodjenja*<br><input type="number" id="hprl-year" required></label>
             <label>Mesto stanovanja<br><input type="text" id="hprl-location"></label>
             <button id="hprl-next1">Dalje</button>

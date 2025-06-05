@@ -9,7 +9,6 @@ function hprl_admin_menu() {
 }
 
 function hprl_questions_page() {
-    $max_q = 6;
     if ( isset( $_POST['hprl_save_questions'] ) ) {
         check_admin_referer( 'hprl_save_questions' );
         $questions = array();
@@ -28,6 +27,7 @@ function hprl_questions_page() {
             }
         }
         update_option( 'hprl_questions', $questions );
+        $max_q = count( $questions );
 
         $products['cheap']   = intval( $_POST['cheap_product'] );
         $products['premium'] = intval( $_POST['premium_product'] );
@@ -69,6 +69,7 @@ function hprl_questions_page() {
     $questions = get_option( 'hprl_questions', $default_questions );
     $products  = get_option( 'hprl_products', array( 'cheap' => '', 'premium' => '' ) );
     $combos    = get_option( 'hprl_combos', array() );
+    $max_q = count( $questions );
     foreach ( $combos as &$c ) {
         if ( ! is_array( $c['answers'] ) ) {
             $parts = array_pad( explode( '|', $c['answers'] ), $max_q, '' );
@@ -80,7 +81,7 @@ function hprl_questions_page() {
         }
     }
     unset( $c );
-    if ( empty( $combos ) ) {
+    if ( empty( $combos ) || ( isset( $combos[0]['answers'] ) && count( $combos[0]['answers'] ) !== $max_q ) ) {
         $combos = hprl_generate_all_combos( $questions );
         update_option( 'hprl_combos', $combos );
     }
@@ -96,7 +97,8 @@ function hprl_questions_page() {
         <h1>Pitanja</h1>
         <form method="post">
             <?php wp_nonce_field( 'hprl_save_questions' ); ?>
-            <table class="form-table">
+            <table class="form-table" id="hprl-questions-table">
+                <tbody id="hprl-questions-body">
                 <?php for ( $i = 0; $i < $max_q; $i++ ) :
                     $q = isset( $questions[ $i ] ) ? $questions[ $i ] : array( 'text' => '', 'answers' => array() );
                     $ans = implode( ',', $q['answers'] );
@@ -111,10 +113,12 @@ function hprl_questions_page() {
                     </td>
                 </tr>
                 <?php endfor; ?>
-                <tr>
-                    <th>ID jeftinijeg proizvoda (podrazumevano)</th>
-                    <td>
-                        <select name="cheap_product">
+                </tbody>
+                <tbody>
+            <tr>
+                <th>ID jeftinijeg proizvoda (podrazumevano)</th>
+                <td>
+                    <select name="cheap_product">
                             <option value="">-</option>
                             <?php foreach ( $all_products as $pid => $title ) : ?>
                                 <option value="<?php echo esc_attr( $pid ); ?>" <?php selected( intval( $products['cheap'] ) === $pid ); ?>><?php echo esc_html( $title ); ?></option>
@@ -133,7 +137,9 @@ function hprl_questions_page() {
                         </select>
                     </td>
                 </tr>
+                </tbody>
             </table>
+            <p><button type="button" id="hprl-add-question" class="button">Dodaj novo pitanje</button></p>
             <h2>Kombinacije proizvoda</h2>
             <p class="description">Odaberite odgovore za svako pitanje kako biste definisali kombinaciju.</p>
             <table class="form-table">
@@ -179,6 +185,22 @@ function hprl_questions_page() {
             </table>
             <p><input type="submit" name="hprl_save_questions" class="button-primary" value="Sačuvaj"></p>
         </form>
+        <script>
+        jQuery(document).ready(function($){
+            $('#hprl-add-question').on('click', function(){
+                var index = $('#hprl-questions-body tr').length;
+                var row = '<tr>'+
+                          '<th>Pitanje '+(index+1)+'</th>'+
+                          '<td>'+
+                          '<input type="text" name="question_text['+index+']" class="regular-text" />'+
+                          '<br/><small>Odgovori (zarezom odvojeni)</small><br/>'+
+                          '<input type="text" name="question_answers['+index+']" class="regular-text" />'+
+                          '</td>'+
+                          '</tr>';
+                $('#hprl-questions-body').append(row);
+            });
+        });
+        </script>
     </div>
     <?php
 }
