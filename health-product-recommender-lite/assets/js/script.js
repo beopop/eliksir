@@ -50,7 +50,11 @@ document.addEventListener('DOMContentLoaded', function(){
       data.append('product', this.dataset.product);
       fetch(hprlData.ajaxurl, {method:'POST', body:data, credentials:'same-origin'})
         .then(r=>r.json())
-        .then(()=>{
+        .then(res=>{
+          if(!res.success){
+            alert(res.data && res.data.message ? res.data.message : 'Doslo je do greske');
+            return;
+          }
           fetch(hprlData.cart_url+'?add-to-cart='+this.dataset.product,{credentials:'same-origin'})
             .then(()=>{window.location=hprlData.checkout;});
         });

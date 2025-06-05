@@ -8,7 +8,13 @@ function hprl_save_quiz() {
     global $wpdb;
     $name = sanitize_text_field( $_POST['name'] );
     $email = sanitize_email( $_POST['email'] );
-    $phone = sanitize_text_field( $_POST['phone'] );
+    if ( ! is_email( $email ) ) {
+        wp_send_json_error( array( 'message' => 'Neispravan email.' ) );
+    }
+    $phone = preg_replace( '/[^0-9]/', '', $_POST['phone'] );
+    if ( $phone === '' ) {
+        wp_send_json_error( array( 'message' => 'Neispravan telefon.' ) );
+    }
     $birth_year = intval( $_POST['birth_year'] );
     $location = sanitize_text_field( $_POST['location'] );
     $answers = isset( $_POST['answers'] ) ? array_map( 'sanitize_text_field', $_POST['answers'] ) : array();
