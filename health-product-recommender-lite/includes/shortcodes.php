@@ -3,13 +3,19 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 add_shortcode( 'health_quiz', 'hprl_quiz_shortcode' );
 function hprl_quiz_shortcode() {
-    $questions = get_option( 'hprl_questions', array(
-        'Koliko cesto osecate umor?',
-        'Da li imate problema sa varenjem?',
-        'Koliko sati spavate?',
-        'Da li osecate stres?'
-    ) );
-    $products = get_option( 'hprl_products', array( 'cheap' => '', 'premium' => '' ) );
+    $default_questions = array(
+        array( 'text' => 'Koliko cesto osecate umor?', 'answers' => array( 'Retko', 'Ponekad', 'Cesto' ) ),
+        array( 'text' => 'Da li imate problema sa varenjem?', 'answers' => array( 'Da', 'Ne' ) ),
+    );
+    $questions = get_option( 'hprl_questions', $default_questions );
+    $products  = get_option( 'hprl_products', array( 'cheap' => '', 'premium' => '' ) );
+    $combos    = get_option( 'hprl_combos', array() );
+    $combos_out = array();
+    foreach ( $combos as $c ) {
+        if ( ! empty( $c['answers'] ) ) {
+            $combos_out[ $c['answers'] ] = array( 'cheap' => $c['cheap'], 'premium' => $c['premium'] );
+        }
+    }
 
     ob_start();
     ?>
@@ -24,17 +30,23 @@ function hprl_quiz_shortcode() {
         </div>
         <div class="hprl-step" data-step="2" style="display:none;">
             <?php foreach ( $questions as $idx => $q ) : ?>
-                <label><?php echo esc_html( $q ); ?><br>
-                    <input type="text" class="hprl-question" data-index="<?php echo $idx; ?>">
-                </label>
+                <div class="hprl-question-group" data-question="<?php echo $idx; ?>">
+                    <p><?php echo esc_html( $q['text'] ); ?></p>
+                    <?php foreach ( $q['answers'] as $a_idx => $ans ) : ?>
+                        <label>
+                            <input type="radio" name="q<?php echo $idx; ?>" class="hprl-question" data-index="<?php echo $a_idx; ?>" value="<?php echo esc_attr( $ans ); ?>" required>
+                            <?php echo esc_html( $ans ); ?>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
             <?php endforeach; ?>
             <button id="hprl-next2">Dalje</button>
         </div>
         <div class="hprl-step" data-step="3" style="display:none;">
             <p>Preporucujemo sledece proizvode:</p>
             <div class="hprl-products">
-                <button class="hprl-select" data-product="<?php echo esc_attr( $products['cheap'] ); ?>">Jeftiniji paket</button>
-                <button class="hprl-select" data-product="<?php echo esc_attr( $products['premium'] ); ?>">Skuplji paket</button>
+                <button class="hprl-select" data-type="cheap" data-product="<?php echo esc_attr( $products['cheap'] ); ?>">Jeftiniji paket</button>
+                <button class="hprl-select" data-type="premium" data-product="<?php echo esc_attr( $products['premium'] ); ?>">Skuplji paket</button>
             </div>
         </div>
     </div>
@@ -47,7 +59,8 @@ function hprl_quiz_shortcode() {
         'cheap'   => $products['cheap'],
         'premium' => $products['premium'],
         'checkout'=> wc_get_checkout_url(),
-        'cart_url'=> wc_get_cart_url()
+        'cart_url'=> wc_get_cart_url(),
+        'combos'  => $combos_out
     ) );
     return ob_get_clean();
 }

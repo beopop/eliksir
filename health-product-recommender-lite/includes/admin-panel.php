@@ -12,42 +12,95 @@ function hprl_questions_page() {
     if ( isset( $_POST['hprl_save_questions'] ) ) {
         check_admin_referer( 'hprl_save_questions' );
         $questions = array();
-        for ( $i = 0; $i < 4; $i++ ) {
-            $questions[$i] = sanitize_text_field( $_POST['question'][$i] );
+        if ( isset( $_POST['question_text'] ) ) {
+            foreach ( $_POST['question_text'] as $i => $qt ) {
+                $text = sanitize_text_field( $qt );
+                $ans  = isset( $_POST['question_answers'][$i] ) ? sanitize_text_field( $_POST['question_answers'][$i] ) : '';
+                $answers = array();
+                if ( $ans !== '' ) {
+                    $parts = array_map( 'trim', explode( ',', $ans ) );
+                    $answers = array_map( 'sanitize_text_field', $parts );
+                }
+                if ( $text !== '' ) {
+                    $questions[] = array( 'text' => $text, 'answers' => $answers );
+                }
+            }
         }
         update_option( 'hprl_questions', $questions );
+
         $products['cheap'] = intval( $_POST['cheap_product'] );
         $products['premium'] = intval( $_POST['premium_product'] );
         update_option( 'hprl_products', $products );
+
+        $combos = array();
+        if ( isset( $_POST['combo_answers'] ) ) {
+            foreach ( $_POST['combo_answers'] as $i => $cans ) {
+                $key = sanitize_text_field( $cans );
+                if ( $key === '' ) {
+                    continue;
+                }
+                $combos[] = array(
+                    'answers' => $key,
+                    'cheap'   => intval( $_POST['combo_cheap'][$i] ),
+                    'premium' => intval( $_POST['combo_premium'][$i] ),
+                );
+            }
+        }
+        update_option( 'hprl_combos', $combos );
+
         echo '<div class="updated"><p>Sačuvano.</p></div>';
     }
-    $questions = get_option( 'hprl_questions', array(
-        'Koliko cesto osecate umor?',
-        'Da li imate problema sa varenjem?',
-        'Koliko sati spavate?',
-        'Da li osecate stres?'
-    ) );
+
+    $default_questions = array(
+        array( 'text' => 'Koliko cesto osecate umor?', 'answers' => array( 'Retko', 'Ponekad', 'Cesto' ) ),
+        array( 'text' => 'Da li imate problema sa varenjem?', 'answers' => array( 'Da', 'Ne' ) ),
+    );
+    $questions = get_option( 'hprl_questions', $default_questions );
     $products = get_option( 'hprl_products', array( 'cheap' => '', 'premium' => '' ) );
+    $combos   = get_option( 'hprl_combos', array() );
+    $max_q    = 6;
+    $max_c    = 6;
     ?>
     <div class="wrap">
         <h1>Pitanja</h1>
         <form method="post">
             <?php wp_nonce_field( 'hprl_save_questions' ); ?>
             <table class="form-table">
-                <?php foreach ( $questions as $idx => $q ) : ?>
+                <?php for ( $i = 0; $i < $max_q; $i++ ) :
+                    $q = isset( $questions[ $i ] ) ? $questions[ $i ] : array( 'text' => '', 'answers' => array() );
+                    $ans = implode( ',', $q['answers'] );
+                ?>
                 <tr>
-                    <th>Pitanje <?php echo $idx+1; ?></th>
-                    <td><input type="text" name="question[<?php echo $idx; ?>]" value="<?php echo esc_attr( $q ); ?>" class="regular-text" required></td>
+                    <th>Pitanje <?php echo $i + 1; ?></th>
+                    <td>
+                        <input type="text" name="question_text[<?php echo $i; ?>]" value="<?php echo esc_attr( $q['text'] ); ?>" class="regular-text" />
+                        <br/>
+                        <small>Odgovori (zarezom odvojeni)</small><br/>
+                        <input type="text" name="question_answers[<?php echo $i; ?>]" value="<?php echo esc_attr( $ans ); ?>" class="regular-text" />
+                    </td>
                 </tr>
-                <?php endforeach; ?>
+                <?php endfor; ?>
                 <tr>
-                    <th>ID jeftinijeg proizvoda</th>
-                    <td><input type="number" name="cheap_product" value="<?php echo esc_attr( $products['cheap'] ); ?>" class="small-text" required></td>
+                    <th>ID jeftinijeg proizvoda (podrazumevano)</th>
+                    <td><input type="number" name="cheap_product" value="<?php echo esc_attr( $products['cheap'] ); ?>" class="small-text" /></td>
                 </tr>
                 <tr>
-                    <th>ID skupljeg proizvoda</th>
-                    <td><input type="number" name="premium_product" value="<?php echo esc_attr( $products['premium'] ); ?>" class="small-text" required></td>
+                    <th>ID skupljeg proizvoda (podrazumevano)</th>
+                    <td><input type="number" name="premium_product" value="<?php echo esc_attr( $products['premium'] ); ?>" class="small-text" /></td>
                 </tr>
+            </table>
+            <h2>Kombinacije proizvoda</h2>
+            <table class="form-table">
+                <tr><th>Kombinacija odgovora</th><th>Jeftiniji ID</th><th>Skuplji ID</th></tr>
+                <?php for ( $i = 0; $i < $max_c; $i++ ) :
+                    $c = isset( $combos[ $i ] ) ? $combos[ $i ] : array( 'answers' => '', 'cheap' => '', 'premium' => '' );
+                ?>
+                <tr>
+                    <td><input type="text" name="combo_answers[<?php echo $i; ?>]" value="<?php echo esc_attr( $c['answers'] ); ?>" class="regular-text" /></td>
+                    <td><input type="number" name="combo_cheap[<?php echo $i; ?>]" value="<?php echo esc_attr( $c['cheap'] ); ?>" class="small-text" /></td>
+                    <td><input type="number" name="combo_premium[<?php echo $i; ?>]" value="<?php echo esc_attr( $c['premium'] ); ?>" class="small-text" /></td>
+                </tr>
+                <?php endfor; ?>
             </table>
             <p><input type="submit" name="hprl_save_questions" class="button-primary" value="Sačuvaj"></p>
         </form>
