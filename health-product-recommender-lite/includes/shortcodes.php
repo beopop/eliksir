@@ -12,7 +12,15 @@ function hprl_quiz_shortcode() {
     $combos    = get_option( 'hprl_combos', array() );
     $combos_out = array();
     foreach ( $combos as $c ) {
-        if ( ! empty( $c['answers'] ) ) {
+        if ( empty( $c['answers'] ) ) {
+            continue;
+        }
+        if ( is_array( $c['answers'] ) ) {
+            $keys = hprl_cartesian_product( array_map( function( $v ) { return (array) $v; }, $c['answers'] ) );
+            foreach ( $keys as $k ) {
+                $combos_out[ implode( '|', $k ) ] = array( 'cheap' => $c['cheap'], 'premium' => $c['premium'] );
+            }
+        } else {
             $combos_out[ $c['answers'] ] = array( 'cheap' => $c['cheap'], 'premium' => $c['premium'] );
         }
     }
