@@ -17,9 +17,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Zip plugin folder (with folder inside ZIP)
-        run: |
-          zip -r health-product-recommender-lite.zip health-product-recommender-lite
+      - name: Zip plugin folder
+        run: zip -r health-product-recommender-lite.zip health-product-recommender-lite
 
       - name: Create GitHub Release and attach ZIP
         uses: softprops/action-gh-release@v1
