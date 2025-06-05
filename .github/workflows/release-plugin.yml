@@ -14,9 +14,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Zip plugin folder
+      - name: Zip plugin folder contents (not the folder itself)
         run: |
-          cd health-product-recommender-lite
+          mkdir build
+          cp -r health-product-recommender-lite/* build/
+          cd build
           zip -r ../health-product-recommender-lite.zip .
 
       - name: Create GitHub Release and attach ZIP
