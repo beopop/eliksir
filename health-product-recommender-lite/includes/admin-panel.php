@@ -29,6 +29,9 @@ function hprl_questions_page() {
         update_option( 'hprl_questions', $questions );
         $max_q = count( $questions );
 
+        $per_page = max( 1, intval( $_POST['questions_per_page'] ) );
+        update_option( 'hprl_questions_per_page', $per_page );
+
         $products['cheap']   = intval( $_POST['cheap_product'] );
         $products['premium'] = intval( $_POST['premium_product'] );
         update_option( 'hprl_products', $products );
@@ -69,6 +72,7 @@ function hprl_questions_page() {
     $questions = get_option( 'hprl_questions', $default_questions );
     $products  = get_option( 'hprl_products', array( 'cheap' => '', 'premium' => '' ) );
     $combos    = get_option( 'hprl_combos', array() );
+    $per_page  = intval( get_option( 'hprl_questions_per_page', 3 ) );
     $max_q = count( $questions );
     foreach ( $combos as &$c ) {
         if ( ! is_array( $c['answers'] ) ) {
@@ -115,6 +119,10 @@ function hprl_questions_page() {
                 <?php endfor; ?>
                 </tbody>
                 <tbody>
+            <tr>
+                <th>Broj pitanja po stranici</th>
+                <td><input type="number" name="questions_per_page" value="<?php echo esc_attr( $per_page ); ?>" min="1" class="small-text" /></td>
+            </tr>
             <tr>
                 <th>ID jeftinijeg proizvoda (podrazumevano)</th>
                 <td>
