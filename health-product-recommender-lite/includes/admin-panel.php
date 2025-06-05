@@ -36,6 +36,9 @@ function hprl_questions_page() {
         $products['premium'] = intval( $_POST['premium_product'] );
         update_option( 'hprl_products', $products );
 
+        $debug_log = isset( $_POST['hprl_debug_log'] ) ? 1 : 0;
+        update_option( 'hprl_debug_log', $debug_log );
+
         $combos = array();
         if ( isset( $_POST['combo_cheap'] ) ) {
             $count_c = count( $_POST['combo_cheap'] );
@@ -72,6 +75,7 @@ function hprl_questions_page() {
     $questions = get_option( 'hprl_questions', $default_questions );
     $products  = get_option( 'hprl_products', array( 'cheap' => '', 'premium' => '' ) );
     $combos    = get_option( 'hprl_combos', array() );
+    $debug_log = intval( get_option( 'hprl_debug_log', 0 ) );
     $per_page  = intval( get_option( 'hprl_questions_per_page', 3 ) );
     $max_q = count( $questions );
     foreach ( $combos as &$c ) {
@@ -143,6 +147,12 @@ function hprl_questions_page() {
                                 <option value="<?php echo esc_attr( $pid ); ?>" <?php selected( intval( $products['premium'] ) === $pid ); ?>><?php echo esc_html( $title ); ?></option>
                             <?php endforeach; ?>
                         </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Prikaži log grešaka</th>
+                    <td>
+                        <label><input type="checkbox" name="hprl_debug_log" value="1" <?php checked( $debug_log ); ?> /> Omogući prikaz loga</label>
                     </td>
                 </tr>
                 </tbody>

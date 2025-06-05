@@ -10,6 +10,7 @@ function hprl_quiz_shortcode() {
     $questions = get_option( 'hprl_questions', $default_questions );
     $products  = get_option( 'hprl_products', array( 'cheap' => '', 'premium' => '' ) );
     $combos    = get_option( 'hprl_combos', array() );
+    $debug_log = intval( get_option( 'hprl_debug_log', 0 ) );
     $per_page  = intval( get_option( 'hprl_questions_per_page', 3 ) );
     if ( $per_page < 1 ) $per_page = 1;
     $question_pages = array_chunk( $questions, $per_page );
@@ -78,6 +79,10 @@ function hprl_quiz_shortcode() {
                 <button class="hprl-select" data-type="premium" data-product="<?php echo esc_attr( $products['premium'] ); ?>">Skuplji paket</button>
             </div>
         </div>
+        <div id="hprl-debug-container" style="display:none;">
+            <label><input type="checkbox" id="hprl-debug-toggle"> Prikaži log greške</label>
+            <pre id="hprl-debug-log" style="display:none;"></pre>
+        </div>
     </div>
     <?php
     wp_enqueue_style( 'hprl-style', HPRL_URL . 'assets/css/style.css', array(), '1.0' );
@@ -89,7 +94,8 @@ function hprl_quiz_shortcode() {
         'premium' => $products['premium'],
         'checkout'=> wc_get_checkout_url(),
         'cart_url'=> wc_get_cart_url(),
-        'combos'  => $combos_out
+        'combos'  => $combos_out,
+        'debug'   => $debug_log
     ) );
     return ob_get_clean();
 }

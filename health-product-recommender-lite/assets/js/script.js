@@ -4,6 +4,18 @@ document.addEventListener('DOMContentLoaded',function(){
   const steps=Array.from(quiz.querySelectorAll('.hprl-step'));
   let resultId=null;
   let saveAnswersPromise=null;
+  const debugMode=!!hprlData.debug;
+  const debugContainer=document.getElementById('hprl-debug-container');
+  const debugToggle=document.getElementById('hprl-debug-toggle');
+  const debugLog=document.getElementById('hprl-debug-log');
+  if(debugToggle){
+    debugToggle.addEventListener('change',()=>{debugLog.style.display=debugToggle.checked?'block':'none';});
+  }
+  function showDebug(log){
+    if(!debugMode||!debugContainer) return;
+    debugContainer.style.display='block';
+    debugLog.textContent=log;
+  }
   function showStep(index){
     steps.forEach((s,i)=>{s.style.display=i===index?'block':'none';});
   }
@@ -103,9 +115,10 @@ document.addEventListener('DOMContentLoaded',function(){
               resultId=res.data.result_id;
             }else{
               alert(res.data&&res.data.message?res.data.message:'Greška pri snimanju.');
+              if(res.data&&res.data.log) showDebug(res.data.log);
             }
           })
-          .catch(()=>{alert('Greška pri snimanju.');});
+          .catch(()=>{alert('Greška pri snimanju.');showDebug('Network error');});
       }
       showStep(next-1);
     });
@@ -120,11 +133,16 @@ document.addEventListener('DOMContentLoaded',function(){
       data.append('product',this.dataset.product);
       fetch(hprlData.ajaxurl,{method:'POST',body:data,credentials:'same-origin'})
         .then(r=>r.json())
-        .then(()=>{
-          fetch(hprlData.cart_url+'?add-to-cart='+this.dataset.product,{credentials:'same-origin'})
-            .then(()=>{window.location=hprlData.checkout;});
+        .then(res=>{
+          if(res.success){
+            fetch(hprlData.cart_url+'?add-to-cart='+this.dataset.product,{credentials:'same-origin'})
+              .then(()=>{window.location=hprlData.checkout;});
+          }else{
+            alert('Greška pri dodavanju proizvoda.');
+            if(res.data&&res.data.log) showDebug(res.data.log);
+          }
         })
-        .catch(()=>{alert('Greška pri dodavanju proizvoda.');});
+        .catch(()=>{alert('Greška pri dodavanju proizvoda.');showDebug('Network error');});
     });
   });
   showStep(0);
