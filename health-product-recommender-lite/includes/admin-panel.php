@@ -225,37 +225,67 @@ function hprl_questions_page() {
 
 function hprl_results_page() {
     global $wpdb;
+    if ( isset( $_GET['delete'] ) ) {
+        $id = intval( $_GET['delete'] );
+        if ( $id > 0 ) {
+            $wpdb->delete( HPRL_TABLE, array( 'id' => $id ) );
+        }
+    }
     if ( isset( $_GET['export'] ) ) {
         $rows = $wpdb->get_results( "SELECT * FROM " . HPRL_TABLE . " ORDER BY created_at DESC", ARRAY_A );
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="hprl-results.csv"');
-        $out = fopen('php://output', 'w');
-        fputcsv( $out, array('ID','Name','Email','Phone','Birth Year','Location','Answers','Product ID','Date') );
-        foreach ( $rows as $row ) {
-            fputcsv( $out, array(
-                $row['id'],
-                $row['name'],
-                $row['email'],
-                $row['phone'],
-                $row['birth_year'],
-                $row['location'],
-                implode( ',', maybe_unserialize( $row['answers'] ) ),
-                $row['product_id'],
-                $row['created_at'],
-            ) );
+        $header = array( 'ID','Name','Email','Phone','Birth Year','Location','Answers','Product ID','Date' );
+        if ( $_GET['export'] === 'excel' ) {
+            $data = array( $header );
+            foreach ( $rows as $row ) {
+                $data[] = array(
+                    $row['id'],
+                    $row['name'],
+                    $row['email'],
+                    $row['phone'],
+                    $row['birth_year'],
+                    $row['location'],
+                    implode( ',', maybe_unserialize( $row['answers'] ) ),
+                    $row['product_id'],
+                    $row['created_at'],
+                );
+            }
+            if ( false === hprl_download_excel( $data, 'hprl-results.xlsx' ) ) {
+                wp_die( 'Excel export nije dostupan.' );
+            }
+        } else {
+            header('Content-Type: text/csv');
+            header('Content-Disposition: attachment; filename="hprl-results.csv"');
+            $out = fopen('php://output', 'w');
+            fputcsv( $out, $header );
+            foreach ( $rows as $row ) {
+                fputcsv( $out, array(
+                    $row['id'],
+                    $row['name'],
+                    $row['email'],
+                    $row['phone'],
+                    $row['birth_year'],
+                    $row['location'],
+                    implode( ',', maybe_unserialize( $row['answers'] ) ),
+                    $row['product_id'],
+                    $row['created_at'],
+                ) );
+            }
+            fclose($out);
+            exit;
         }
-        fclose($out);
-        exit;
     }
     $results = $wpdb->get_results( "SELECT * FROM " . HPRL_TABLE . " ORDER BY created_at DESC" );
     ?>
     <div class="wrap">
         <h1>Rezultati</h1>
-        <p><a href="?page=hprl-results&export=1" class="button">Export CSV</a></p>
+        <p>
+            <a href="?page=hprl-results&export=1" class="button">Export CSV</a>
+            <a href="?page=hprl-results&export=excel" class="button">Export Excel</a>
+        </p>
         <table class="widefat">
             <thead>
             <tr>
-                <th>ID</th><th>Ime</th><th>Email</th><th>Telefon</th><th>Godina</th><th>Mesto</th><th>Odgovori</th><th>Proizvod</th><th>Datum</th>
+                <th>ID</th><th>Ime</th><th>Email</th><th>Telefon</th><th>Godina</th><th>Mesto</th><th>Odgovori</th><th>Proizvod</th><th>Datum</th><th>Akcija</th>
             </tr>
             </thead>
             <tbody>
@@ -272,6 +302,7 @@ function hprl_results_page() {
                     <td><?php echo esc_html( implode( ',', $ans ) ); ?></td>
                     <td><?php echo esc_html( $row->product_id ); ?></td>
                     <td><?php echo esc_html( $row->created_at ); ?></td>
+                    <td><a href="?page=hprl-results&delete=<?php echo intval( $row->id ); ?>" onclick="return confirm('Obrisati ovaj unos?');">Obriši</a></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
