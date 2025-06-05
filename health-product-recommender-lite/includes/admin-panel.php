@@ -10,7 +10,6 @@ function hprl_admin_menu() {
 
 function hprl_questions_page() {
     $max_q = 6;
-    $max_c = 6;
     if ( isset( $_POST['hprl_save_questions'] ) ) {
         check_admin_referer( 'hprl_save_questions' );
         $questions = array();
@@ -36,21 +35,23 @@ function hprl_questions_page() {
 
         $combos = array();
         if ( isset( $_POST['combo_cheap'] ) ) {
-            for ( $i = 0; $i < $max_c; $i++ ) {
-                $parts = array();
+            $count_c = count( $_POST['combo_cheap'] );
+            for ( $i = 0; $i < $count_c; $i++ ) {
+                $answers = array();
                 $empty = true;
                 for ( $q = 0; $q < $max_q; $q++ ) {
-                    $val = isset( $_POST["combo_q{$q}"][$i] ) ? sanitize_text_field( $_POST["combo_q{$q}"][$i] ) : '';
-                    if ( $val !== '' ) {
+                    $vals = isset( $_POST["combo_q{$q}"][$i] ) ? (array) $_POST["combo_q{$q}"][$i] : array();
+                    $vals = array_map( 'intval', array_filter( $vals, 'strlen' ) );
+                    if ( ! empty( $vals ) ) {
                         $empty = false;
                     }
-                    $parts[] = $val;
+                    $answers[] = $vals;
                 }
                 if ( $empty ) {
                     continue;
                 }
                 $combos[] = array(
-                    'answers' => implode( '|', $parts ),
+                    'answers' => $answers,
                     'cheap'   => intval( $_POST['combo_cheap'][ $i ] ),
                     'premium' => intval( $_POST['combo_premium'][ $i ] ),
                 );
@@ -68,6 +69,22 @@ function hprl_questions_page() {
     $questions = get_option( 'hprl_questions', $default_questions );
     $products  = get_option( 'hprl_products', array( 'cheap' => '', 'premium' => '' ) );
     $combos    = get_option( 'hprl_combos', array() );
+    foreach ( $combos as &$c ) {
+        if ( ! is_array( $c['answers'] ) ) {
+            $parts = array_pad( explode( '|', $c['answers'] ), $max_q, '' );
+            $new = array();
+            foreach ( $parts as $p ) {
+                $new[] = ( $p === '' ) ? array() : array( intval( $p ) );
+            }
+            $c['answers'] = $new;
+        }
+    }
+    unset( $c );
+    if ( empty( $combos ) ) {
+        $combos = hprl_generate_all_combos( $questions );
+        update_option( 'hprl_combos', $combos );
+    }
+    $max_c = count( $combos );
 
     $all_products = array();
     $prod_posts = get_posts( array( 'post_type' => 'product', 'numberposts' => -1, 'orderby' => 'title', 'order' => 'ASC' ) );
@@ -126,19 +143,17 @@ function hprl_questions_page() {
                     <th>Skuplji proizvod</th>
                 </tr>
                 <?php for ( $i = 0; $i < $max_c; $i++ ) :
-                    $c = isset( $combos[ $i ] ) ? $combos[ $i ] : array( 'answers' => '', 'cheap' => '', 'premium' => '' );
-                    $parts = array_pad( explode( '|', $c['answers'] ), $max_q, '' );
+                    $c = isset( $combos[ $i ] ) ? $combos[ $i ] : array( 'answers' => array(), 'cheap' => '', 'premium' => '' );
                 ?>
                 <tr>
                     <td>
                         <?php for ( $q = 0; $q < $max_q; $q++ ) :
-                            $current = isset( $parts[ $q ] ) ? $parts[ $q ] : '';
+                            $current = isset( $c['answers'][ $q ] ) ? (array) $c['answers'][ $q ] : array();
                             $qdata   = isset( $questions[ $q ] ) ? $questions[ $q ] : array( 'answers' => array() );
                         ?>
-                        <select name="combo_q<?php echo $q; ?>[<?php echo $i; ?>]">
-                            <option value="">-</option>
+                        <select name="combo_q<?php echo $q; ?>[<?php echo $i; ?>][]" multiple>
                             <?php foreach ( $qdata['answers'] as $a_idx => $ans ) : ?>
-                                <option value="<?php echo $a_idx; ?>" <?php selected( $current !== '' && intval( $current ) === $a_idx ); ?>><?php echo esc_html( $ans ); ?></option>
+                                <option value="<?php echo $a_idx; ?>" <?php selected( in_array( $a_idx, $current ) ); ?>><?php echo esc_html( $ans ); ?></option>
                             <?php endforeach; ?>
                         </select>
                         <?php endfor; ?>

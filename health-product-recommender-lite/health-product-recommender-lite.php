@@ -3,7 +3,7 @@
 Plugin Name: Health Product Recommender Lite
 Plugin URI: https://beohosting.com/plugins/health-product-recommender-lite
 Description: Lagani, responzivni WordPress plugin koji generiše preporuke proizvoda na osnovu zdravstvenog upitnika, potpuno kompatibilan sa Woodmart temom i Elementorom.
-Version: 1.1
+Version: 1.2
 Author: BeoHosting
 Author URI: https://beohosting.com
 License: GPL2+
@@ -46,6 +46,7 @@ function hprl_uninstall() {
 }
 
 // Includes
+require_once HPRL_DIR . 'includes/utils.php';
 require_once HPRL_DIR . 'includes/data-handler.php';
 require_once HPRL_DIR . 'includes/shortcodes.php';
 if ( is_admin() ) {
