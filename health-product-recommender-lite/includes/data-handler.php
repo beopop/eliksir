@@ -6,6 +6,7 @@ add_action( 'wp_ajax_nopriv_hprl_save_quiz', 'hprl_save_quiz' );
 function hprl_save_quiz() {
     check_ajax_referer( 'hprl_nonce', 'nonce' );
     global $wpdb;
+    $debug = intval( get_option( 'hprl_debug_log', 0 ) );
     $name = sanitize_text_field( $_POST['name'] );
     $email = sanitize_email( $_POST['email'] );
     if ( ! is_email( $email ) ) {
@@ -33,7 +34,11 @@ function hprl_save_quiz() {
 
     if ( false === $inserted ) {
         error_log( 'HPRL insert error: ' . $wpdb->last_error );
-        wp_send_json_error( array( 'message' => 'Greška pri snimanju.' ) );
+        $resp = array( 'message' => 'Greška pri snimanju.' );
+        if ( $debug && $wpdb->last_error ) {
+            $resp['log'] = $wpdb->last_error;
+        }
+        wp_send_json_error( $resp );
     }
 
     wp_send_json_success();
@@ -44,6 +49,7 @@ add_action( 'wp_ajax_nopriv_hprl_save_answers', 'hprl_save_answers' );
 function hprl_save_answers() {
     check_ajax_referer( 'hprl_nonce', 'nonce' );
     global $wpdb;
+    $debug = intval( get_option( 'hprl_debug_log', 0 ) );
     $name = sanitize_text_field( $_POST['name'] );
     $email = sanitize_email( $_POST['email'] );
     if ( ! is_email( $email ) ) {
@@ -70,7 +76,11 @@ function hprl_save_answers() {
 
     if ( false === $inserted ) {
         error_log( 'HPRL insert error: ' . $wpdb->last_error );
-        wp_send_json_error( array( 'message' => 'Greška pri snimanju.' ) );
+        $resp = array( 'message' => 'Greška pri snimanju.' );
+        if ( $debug && $wpdb->last_error ) {
+            $resp['log'] = $wpdb->last_error;
+        }
+        wp_send_json_error( $resp );
     }
 
     wp_send_json_success( array( 'result_id' => $wpdb->insert_id ) );
@@ -81,13 +91,18 @@ add_action( 'wp_ajax_nopriv_hprl_set_product', 'hprl_set_product' );
 function hprl_set_product() {
     check_ajax_referer( 'hprl_nonce', 'nonce' );
     global $wpdb;
+    $debug = intval( get_option( 'hprl_debug_log', 0 ) );
     $id = intval( $_POST['result_id'] );
     $product_id = intval( $_POST['product'] );
     if ( $id > 0 ) {
         $updated = $wpdb->update( HPRL_TABLE, [ 'product_id' => $product_id ], [ 'id' => $id ] );
         if ( false === $updated ) {
             error_log( 'HPRL update error: ' . $wpdb->last_error );
-            wp_send_json_error();
+            $resp = array();
+            if ( $debug && $wpdb->last_error ) {
+                $resp['log'] = $wpdb->last_error;
+            }
+            wp_send_json_error( $resp );
         }
         wp_send_json_success();
     }
