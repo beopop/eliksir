@@ -8,3 +8,4 @@
 #hprl-quiz .hprl-select img{max-width:120px;display:block;margin:0 auto 5px;}
 #hprl-quiz .hprl-price{display:block;margin-top:5px;}
 #hprl-debug-log{background:#f5f5f5;padding:10px;border:1px solid #ccc;white-space:pre-wrap;}
+.hprl-note{background:#e6f4ea;border-left:5px solid #3aa15c;padding:10px;margin-top:15px;border-radius:4px;color:#2f5d3c;}

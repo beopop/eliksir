@@ -97,10 +97,12 @@ function hprl_questions_page() {
                 if ( $empty ) {
                     continue;
                 }
+                $note = isset( $_POST['combo_note'][ $i ] ) ? wp_kses_post( $_POST['combo_note'][ $i ] ) : '';
                 $combos[] = array(
                     'answers' => $answers,
                     'cheap'   => intval( $_POST['combo_cheap'][ $i ] ),
                     'premium' => intval( $_POST['combo_premium'][ $i ] ),
+                    'note'    => $note,
                 );
             }
         }
@@ -128,6 +130,9 @@ function hprl_questions_page() {
                 $new[] = ( $p === '' ) ? array() : array( intval( $p ) );
             }
             $c['answers'] = $new;
+        }
+        if ( ! isset( $c['note'] ) ) {
+            $c['note'] = '';
         }
     }
     unset( $c );
@@ -214,9 +219,10 @@ function hprl_questions_page() {
                     <th>Kombinacija odgovora</th>
                     <th>Jeftiniji proizvod</th>
                     <th>Skuplji proizvod</th>
+                    <th>Objašnjenje</th>
                 </tr>
                 <?php for ( $i = 0; $i < $max_c; $i++ ) :
-                    $c = isset( $combos[ $i ] ) ? $combos[ $i ] : array( 'answers' => array(), 'cheap' => '', 'premium' => '' );
+                    $c = isset( $combos[ $i ] ) ? $combos[ $i ] : array( 'answers' => array(), 'cheap' => '', 'premium' => '', 'note' => '' );
                 ?>
                 <tr>
                     <td>
@@ -246,6 +252,18 @@ function hprl_questions_page() {
                                 <option value="<?php echo esc_attr( $pid ); ?>" <?php selected( intval( $c['premium'] ) === $pid ); ?>><?php echo esc_html( $title ); ?></option>
                             <?php endforeach; ?>
                         </select>
+                    </td>
+                    <td>
+                        <?php
+                        $note = isset( $c['note'] ) ? $c['note'] : '';
+                        $eid  = 'combo_note_' . $i;
+                        wp_editor( $note, $eid, array(
+                            'textarea_name' => "combo_note[$i]",
+                            'teeny'         => true,
+                            'media_buttons' => false,
+                            'textarea_rows' => 3,
+                        ) );
+                        ?>
                     </td>
                 </tr>
                 <?php endfor; ?>

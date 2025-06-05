@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded',function(){
   const debugContainer=document.getElementById('hprl-debug-container');
   const debugToggle=document.getElementById('hprl-debug-toggle');
   const debugLog=document.getElementById('hprl-debug-log');
+  const noteBox=document.getElementById('hprl-note');
   if(debugToggle){
     debugToggle.addEventListener('change',()=>{debugLog.style.display=debugToggle.checked?'block':'none';});
   }
@@ -15,6 +16,15 @@ document.addEventListener('DOMContentLoaded',function(){
     if(!debugMode||!debugContainer) return;
     debugContainer.style.display='block';
     debugLog.textContent=log;
+  }
+  function updateNote(text){
+    if(!noteBox) return;
+    if(text){
+      noteBox.innerHTML=text;
+      noteBox.style.display='block';
+    }else{
+      noteBox.style.display='none';
+    }
   }
   function updateProductInfo(type,id){
     const btn=quiz.querySelector('.hprl-select[data-type="'+type+'"]');
@@ -105,12 +115,15 @@ document.addEventListener('DOMContentLoaded',function(){
         let cheap=hprlData.cheap;
         let premium=hprlData.premium;
         const key=indexes.join('|');
+        let note='';
         if(hprlData.combos&&hprlData.combos[key]){
           cheap=hprlData.combos[key].cheap;
           premium=hprlData.combos[key].premium;
+          note=hprlData.combos[key].note||'';
         }
         updateProductInfo('cheap',cheap);
         updateProductInfo('premium',premium);
+        updateNote(note);
         const data=new FormData();
         data.append('action','hprl_save_answers');
         data.append('nonce',hprlData.nonce);
@@ -159,5 +172,6 @@ document.addEventListener('DOMContentLoaded',function(){
   });
   updateProductInfo('cheap',hprlData.cheap);
   updateProductInfo('premium',hprlData.premium);
+  updateNote('');
   showStep(0);
 });

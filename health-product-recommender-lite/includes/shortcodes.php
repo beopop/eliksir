@@ -22,10 +22,18 @@ function hprl_quiz_shortcode() {
         if ( is_array( $c['answers'] ) ) {
             $keys = hprl_cartesian_product( array_map( function( $v ) { return (array) $v; }, $c['answers'] ) );
             foreach ( $keys as $k ) {
-                $combos_out[ implode( '|', $k ) ] = array( 'cheap' => $c['cheap'], 'premium' => $c['premium'] );
+                $combos_out[ implode( '|', $k ) ] = array(
+                    'cheap'   => $c['cheap'],
+                    'premium' => $c['premium'],
+                    'note'    => isset( $c['note'] ) ? $c['note'] : ''
+                );
             }
         } else {
-            $combos_out[ $c['answers'] ] = array( 'cheap' => $c['cheap'], 'premium' => $c['premium'] );
+            $combos_out[ $c['answers'] ] = array(
+                'cheap'   => $c['cheap'],
+                'premium' => $c['premium'],
+                'note'    => isset( $c['note'] ) ? $c['note'] : ''
+            );
         }
     }
 
@@ -119,6 +127,7 @@ function hprl_quiz_shortcode() {
                     <span class="hprl-price"><?php echo wp_kses_post( $premium_data['price'] ); ?></span>
                 </button>
             </div>
+            <div id="hprl-note" class="hprl-note" style="display:none;"></div>
         </div>
         <div id="hprl-debug-container" style="display:none;">
             <label><input type="checkbox" id="hprl-debug-toggle"> Prikaži log greške</label>
