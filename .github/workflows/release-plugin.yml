@@ -3,7 +3,7 @@ name: Build and Release WordPress Plugin
 on:
   push:
     tags:
-      - 'v*'  # Pokreće se kada napraviš tag kao npr. v1.0, v3 itd.
+      - 'v*'
 
 jobs:
   build:
@@ -14,12 +14,9 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Zip plugin folder contents (not the folder itself)
+      - name: Zip plugin folder (with folder inside ZIP)
         run: |
-          mkdir build
-          cp -r health-product-recommender-lite/* build/
-          cd build
-          zip -r ../health-product-recommender-lite.zip .
+          zip -r health-product-recommender-lite.zip health-product-recommender-lite
 
       - name: Create GitHub Release and attach ZIP
         uses: softprops/action-gh-release@v1
