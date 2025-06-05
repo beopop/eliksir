@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded',function(){
   if(!quiz) return;
   const steps=Array.from(quiz.querySelectorAll('.hprl-step'));
   let resultId=null;
+  let saveAnswersPromise=null;
   function showStep(index){
     steps.forEach((s,i)=>{s.style.display=i===index?'block':'none';});
   }
@@ -23,11 +24,17 @@ document.addEventListener('DOMContentLoaded',function(){
     return ans;
   }
   quiz.querySelectorAll('.hprl-next').forEach(btn=>{
-    btn.addEventListener('click',function(){
+    btn.addEventListener('click',async function(){
       const stepElem=this.closest('.hprl-step');
       const step=parseInt(stepElem.dataset.step);
       if(step===1){
-        if(!(document.getElementById('hprl-name').value&&document.getElementById('hprl-email').value&&document.getElementById('hprl-phone').value&&document.getElementById('hprl-year').value))return;
+        const name=document.getElementById('hprl-name').value.trim();
+        const email=document.getElementById('hprl-email').value.trim();
+        const phone=document.getElementById('hprl-phone').value.trim();
+        const year=document.getElementById('hprl-year').value.trim();
+        if(!(name&&email&&phone&&year))return;
+        if(email.indexOf('@')===-1){alert('Email mora da sadrzi @');return;}
+        if(!/^[0-9]+$/.test(phone)){alert('Telefon mora da sadrzi samo brojeve');return;}
       }else{
         let valid=true;
         stepElem.querySelectorAll('.hprl-question-group').forEach(g=>{if(!g.querySelector('input:checked'))valid=false;});
@@ -54,14 +61,15 @@ document.addEventListener('DOMContentLoaded',function(){
         data.append('birth_year',document.getElementById('hprl-year').value);
         data.append('location',document.getElementById('hprl-location').value);
         gatherAnswers().forEach(a=>data.append('answers[]',a));
-        fetch(hprlData.ajaxurl,{method:'POST',body:data,credentials:'same-origin'})
+        saveAnswersPromise=fetch(hprlData.ajaxurl,{method:'POST',body:data,credentials:'same-origin'})
           .then(r=>r.json()).then(res=>{if(res.success)resultId=res.data.result_id;});
       }
       showStep(next-1);
     });
   });
   quiz.querySelectorAll('.hprl-select').forEach(btn=>{
-    btn.addEventListener('click',function(){
+    btn.addEventListener('click',async function(){
+      if(saveAnswersPromise) await saveAnswersPromise;
       const data=new FormData();
       data.append('action','hprl_set_product');
       data.append('nonce',hprlData.nonce);
