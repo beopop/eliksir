@@ -1,6 +1,6 @@
 # Health Product Recommender Lite
 
-Health Product Recommender Lite is a lightweight, responsive WordPress plugin that generates product recommendations based on a short health questionnaire. The plugin is compatible with the Woodmart theme and Elementor and stores quiz results in its own table for later export. From version 1.3.5 the Excel export works even if the server does not have the PHP ZipArchive extension – in that case an `.xls` file is generated automatically.
+Health Product Recommender Lite is a lightweight, responsive WordPress plugin that generates product recommendations based on a short health questionnaire. The plugin is compatible with the Woodmart theme and Elementor and stores quiz results in its own table for later export. From version 1.3.6 the plugin only exports results in CSV format.
 
 ## Installation
 

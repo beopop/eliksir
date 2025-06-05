@@ -3,7 +3,7 @@ Contributors: BeoHosting
 Tags: quiz, health, recommendations
 Requires at least: 6.0
 Tested up to: 6.5
-Stable tag: 1.3.5
+Stable tag: 1.3.6
 License: GPL2+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,3 +26,6 @@ Lagani, responzivni WordPress plugin koji generiše preporuke proizvoda na osnov
 = 1.3.5 =
 * Excel export sada radi i kada PHP nema instaliran ZipArchive – u tom slučaju se generiše .xls fajl.
 * Automatsko ažuriranje plugina je podrazumevano omogućeno.
+
+= 1.3.6 =
+* Uklonjen je Excel eksport, sada je moguće preuzeti samo CSV fajl.

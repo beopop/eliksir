@@ -24,44 +24,24 @@ function hprl_handle_export() {
     $rows = $wpdb->get_results( "SELECT * FROM " . HPRL_TABLE . " ORDER BY created_at DESC", ARRAY_A );
     $header = array( 'ID','Name','Email','Phone','Birth Year','Location','Answers','Product ID','Date' );
 
-    if ( $_GET['export'] === 'excel' ) {
-        $data = array( $header );
-        foreach ( $rows as $row ) {
-            $data[] = array(
-                $row['id'],
-                $row['name'],
-                $row['email'],
-                $row['phone'],
-                $row['birth_year'],
-                $row['location'],
-                implode( ',', maybe_unserialize( $row['answers'] ) ),
-                $row['product_id'],
-                $row['created_at'],
-            );
-        }
-        if ( false === hprl_download_excel( $data, 'hprl-results.xlsx' ) ) {
-            wp_die( 'Excel export nije dostupan.' );
-        }
-    } else {
-        header( 'Content-Type: text/csv' );
-        header( 'Content-Disposition: attachment; filename="hprl-results.csv"' );
-        $out = fopen( 'php://output', 'w' );
-        fputcsv( $out, $header );
-        foreach ( $rows as $row ) {
-            fputcsv( $out, array(
-                $row['id'],
-                $row['name'],
-                $row['email'],
-                $row['phone'],
-                $row['birth_year'],
-                $row['location'],
-                implode( ',', maybe_unserialize( $row['answers'] ) ),
-                $row['product_id'],
-                $row['created_at'],
-            ) );
-        }
-        fclose( $out );
+    header( 'Content-Type: text/csv' );
+    header( 'Content-Disposition: attachment; filename="hprl-results.csv"' );
+    $out = fopen( 'php://output', 'w' );
+    fputcsv( $out, $header );
+    foreach ( $rows as $row ) {
+        fputcsv( $out, array(
+            $row['id'],
+            $row['name'],
+            $row['email'],
+            $row['phone'],
+            $row['birth_year'],
+            $row['location'],
+            implode( ',', maybe_unserialize( $row['answers'] ) ),
+            $row['product_id'],
+            $row['created_at'],
+        ) );
     }
+    fclose( $out );
 
     exit;
 }
@@ -306,7 +286,6 @@ function hprl_results_page() {
         <h1>Rezultati</h1>
         <p>
             <a href="?page=hprl-results&export=1" class="button">Export CSV</a>
-            <a href="?page=hprl-results&export=excel" class="button">Export Excel</a>
         </p>
         <table class="widefat">
             <thead>
