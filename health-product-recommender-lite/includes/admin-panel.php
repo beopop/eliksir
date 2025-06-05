@@ -8,6 +8,64 @@ function hprl_admin_menu() {
     add_submenu_page( 'hprl-questions', 'Rezultati', 'Rezultati', 'manage_options', 'hprl-results', 'hprl_results_page' );
 }
 
+add_action( 'admin_init', 'hprl_handle_export' );
+function hprl_handle_export() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
+    if ( empty( $_GET['page'] ) || $_GET['page'] !== 'hprl-results' ) {
+        return;
+    }
+    if ( empty( $_GET['export'] ) ) {
+        return;
+    }
+
+    global $wpdb;
+    $rows = $wpdb->get_results( "SELECT * FROM " . HPRL_TABLE . " ORDER BY created_at DESC", ARRAY_A );
+    $header = array( 'ID','Name','Email','Phone','Birth Year','Location','Answers','Product ID','Date' );
+
+    if ( $_GET['export'] === 'excel' ) {
+        $data = array( $header );
+        foreach ( $rows as $row ) {
+            $data[] = array(
+                $row['id'],
+                $row['name'],
+                $row['email'],
+                $row['phone'],
+                $row['birth_year'],
+                $row['location'],
+                implode( ',', maybe_unserialize( $row['answers'] ) ),
+                $row['product_id'],
+                $row['created_at'],
+            );
+        }
+        if ( false === hprl_download_excel( $data, 'hprl-results.xlsx' ) ) {
+            wp_die( 'Excel export nije dostupan.' );
+        }
+    } else {
+        header( 'Content-Type: text/csv' );
+        header( 'Content-Disposition: attachment; filename="hprl-results.csv"' );
+        $out = fopen( 'php://output', 'w' );
+        fputcsv( $out, $header );
+        foreach ( $rows as $row ) {
+            fputcsv( $out, array(
+                $row['id'],
+                $row['name'],
+                $row['email'],
+                $row['phone'],
+                $row['birth_year'],
+                $row['location'],
+                implode( ',', maybe_unserialize( $row['answers'] ) ),
+                $row['product_id'],
+                $row['created_at'],
+            ) );
+        }
+        fclose( $out );
+    }
+
+    exit;
+}
+
 function hprl_questions_page() {
     if ( isset( $_POST['hprl_save_questions'] ) ) {
         check_admin_referer( 'hprl_save_questions' );
@@ -229,49 +287,6 @@ function hprl_results_page() {
         $id = intval( $_GET['delete'] );
         if ( $id > 0 ) {
             $wpdb->delete( HPRL_TABLE, array( 'id' => $id ) );
-        }
-    }
-    if ( isset( $_GET['export'] ) ) {
-        $rows = $wpdb->get_results( "SELECT * FROM " . HPRL_TABLE . " ORDER BY created_at DESC", ARRAY_A );
-        $header = array( 'ID','Name','Email','Phone','Birth Year','Location','Answers','Product ID','Date' );
-        if ( $_GET['export'] === 'excel' ) {
-            $data = array( $header );
-            foreach ( $rows as $row ) {
-                $data[] = array(
-                    $row['id'],
-                    $row['name'],
-                    $row['email'],
-                    $row['phone'],
-                    $row['birth_year'],
-                    $row['location'],
-                    implode( ',', maybe_unserialize( $row['answers'] ) ),
-                    $row['product_id'],
-                    $row['created_at'],
-                );
-            }
-            if ( false === hprl_download_excel( $data, 'hprl-results.xlsx' ) ) {
-                wp_die( 'Excel export nije dostupan.' );
-            }
-        } else {
-            header('Content-Type: text/csv');
-            header('Content-Disposition: attachment; filename="hprl-results.csv"');
-            $out = fopen('php://output', 'w');
-            fputcsv( $out, $header );
-            foreach ( $rows as $row ) {
-                fputcsv( $out, array(
-                    $row['id'],
-                    $row['name'],
-                    $row['email'],
-                    $row['phone'],
-                    $row['birth_year'],
-                    $row['location'],
-                    implode( ',', maybe_unserialize( $row['answers'] ) ),
-                    $row['product_id'],
-                    $row['created_at'],
-                ) );
-            }
-            fclose($out);
-            exit;
         }
     }
     $results = $wpdb->get_results( "SELECT * FROM " . HPRL_TABLE . " ORDER BY created_at DESC" );
