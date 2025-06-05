@@ -9,6 +9,8 @@ function hprl_admin_menu() {
 }
 
 function hprl_questions_page() {
+    $max_q = 6;
+    $max_c = 6;
     if ( isset( $_POST['hprl_save_questions'] ) ) {
         check_admin_referer( 'hprl_save_questions' );
         $questions = array();
@@ -28,21 +30,29 @@ function hprl_questions_page() {
         }
         update_option( 'hprl_questions', $questions );
 
-        $products['cheap'] = intval( $_POST['cheap_product'] );
+        $products['cheap']   = intval( $_POST['cheap_product'] );
         $products['premium'] = intval( $_POST['premium_product'] );
         update_option( 'hprl_products', $products );
 
         $combos = array();
-        if ( isset( $_POST['combo_answers'] ) ) {
-            foreach ( $_POST['combo_answers'] as $i => $cans ) {
-                $key = sanitize_text_field( $cans );
-                if ( $key === '' ) {
+        if ( isset( $_POST['combo_cheap'] ) ) {
+            for ( $i = 0; $i < $max_c; $i++ ) {
+                $parts = array();
+                $empty = true;
+                for ( $q = 0; $q < $max_q; $q++ ) {
+                    $val = isset( $_POST["combo_q{$q}"][$i] ) ? sanitize_text_field( $_POST["combo_q{$q}"][$i] ) : '';
+                    if ( $val !== '' ) {
+                        $empty = false;
+                    }
+                    $parts[] = $val;
+                }
+                if ( $empty ) {
                     continue;
                 }
                 $combos[] = array(
-                    'answers' => $key,
-                    'cheap'   => intval( $_POST['combo_cheap'][$i] ),
-                    'premium' => intval( $_POST['combo_premium'][$i] ),
+                    'answers' => implode( '|', $parts ),
+                    'cheap'   => intval( $_POST['combo_cheap'][ $i ] ),
+                    'premium' => intval( $_POST['combo_premium'][ $i ] ),
                 );
             }
         }
@@ -56,10 +66,14 @@ function hprl_questions_page() {
         array( 'text' => 'Da li imate problema sa varenjem?', 'answers' => array( 'Da', 'Ne' ) ),
     );
     $questions = get_option( 'hprl_questions', $default_questions );
-    $products = get_option( 'hprl_products', array( 'cheap' => '', 'premium' => '' ) );
-    $combos   = get_option( 'hprl_combos', array() );
-    $max_q    = 6;
-    $max_c    = 6;
+    $products  = get_option( 'hprl_products', array( 'cheap' => '', 'premium' => '' ) );
+    $combos    = get_option( 'hprl_combos', array() );
+
+    $all_products = array();
+    $prod_posts = get_posts( array( 'post_type' => 'product', 'numberposts' => -1, 'orderby' => 'title', 'order' => 'ASC' ) );
+    foreach ( $prod_posts as $p ) {
+        $all_products[ $p->ID ] = $p->post_title;
+    }
     ?>
     <div class="wrap">
         <h1>Pitanja</h1>
@@ -82,23 +96,69 @@ function hprl_questions_page() {
                 <?php endfor; ?>
                 <tr>
                     <th>ID jeftinijeg proizvoda (podrazumevano)</th>
-                    <td><input type="number" name="cheap_product" value="<?php echo esc_attr( $products['cheap'] ); ?>" class="small-text" /></td>
+                    <td>
+                        <select name="cheap_product">
+                            <option value="">-</option>
+                            <?php foreach ( $all_products as $pid => $title ) : ?>
+                                <option value="<?php echo esc_attr( $pid ); ?>" <?php selected( intval( $products['cheap'] ) === $pid ); ?>><?php echo esc_html( $title ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
                 </tr>
                 <tr>
                     <th>ID skupljeg proizvoda (podrazumevano)</th>
-                    <td><input type="number" name="premium_product" value="<?php echo esc_attr( $products['premium'] ); ?>" class="small-text" /></td>
+                    <td>
+                        <select name="premium_product">
+                            <option value="">-</option>
+                            <?php foreach ( $all_products as $pid => $title ) : ?>
+                                <option value="<?php echo esc_attr( $pid ); ?>" <?php selected( intval( $products['premium'] ) === $pid ); ?>><?php echo esc_html( $title ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
                 </tr>
             </table>
             <h2>Kombinacije proizvoda</h2>
+            <p class="description">Odaberite odgovore za svako pitanje kako biste definisali kombinaciju.</p>
             <table class="form-table">
-                <tr><th>Kombinacija odgovora</th><th>Jeftiniji ID</th><th>Skuplji ID</th></tr>
+                <tr>
+                    <th>Kombinacija odgovora</th>
+                    <th>Jeftiniji proizvod</th>
+                    <th>Skuplji proizvod</th>
+                </tr>
                 <?php for ( $i = 0; $i < $max_c; $i++ ) :
                     $c = isset( $combos[ $i ] ) ? $combos[ $i ] : array( 'answers' => '', 'cheap' => '', 'premium' => '' );
+                    $parts = array_pad( explode( '|', $c['answers'] ), $max_q, '' );
                 ?>
                 <tr>
-                    <td><input type="text" name="combo_answers[<?php echo $i; ?>]" value="<?php echo esc_attr( $c['answers'] ); ?>" class="regular-text" /></td>
-                    <td><input type="number" name="combo_cheap[<?php echo $i; ?>]" value="<?php echo esc_attr( $c['cheap'] ); ?>" class="small-text" /></td>
-                    <td><input type="number" name="combo_premium[<?php echo $i; ?>]" value="<?php echo esc_attr( $c['premium'] ); ?>" class="small-text" /></td>
+                    <td>
+                        <?php for ( $q = 0; $q < $max_q; $q++ ) :
+                            $current = isset( $parts[ $q ] ) ? $parts[ $q ] : '';
+                            $qdata   = isset( $questions[ $q ] ) ? $questions[ $q ] : array( 'answers' => array() );
+                        ?>
+                        <select name="combo_q<?php echo $q; ?>[<?php echo $i; ?>]">
+                            <option value="">-</option>
+                            <?php foreach ( $qdata['answers'] as $a_idx => $ans ) : ?>
+                                <option value="<?php echo $a_idx; ?>" <?php selected( $current !== '' && intval( $current ) === $a_idx ); ?>><?php echo esc_html( $ans ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <?php endfor; ?>
+                    </td>
+                    <td>
+                        <select name="combo_cheap[<?php echo $i; ?>]">
+                            <option value="">-</option>
+                            <?php foreach ( $all_products as $pid => $title ) : ?>
+                                <option value="<?php echo esc_attr( $pid ); ?>" <?php selected( intval( $c['cheap'] ) === $pid ); ?>><?php echo esc_html( $title ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+                    <td>
+                        <select name="combo_premium[<?php echo $i; ?>]">
+                            <option value="">-</option>
+                            <?php foreach ( $all_products as $pid => $title ) : ?>
+                                <option value="<?php echo esc_attr( $pid ); ?>" <?php selected( intval( $c['premium'] ) === $pid ); ?>><?php echo esc_html( $title ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
                 </tr>
                 <?php endfor; ?>
             </table>
