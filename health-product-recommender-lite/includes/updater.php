@@ -1,6 +1,9 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+// Hold an update error message for displaying admin notices.
+$GLOBALS['hprl_update_error_msg'] = '';
+
 add_filter( 'http_request_args', 'hprl_github_auth_header', 10, 2 );
 
 function hprl_get_github_token() {
@@ -32,6 +35,23 @@ function hprl_add_github_token_to_url( $url ) {
     return $url;
 }
 
+function hprl_show_update_error_notice() {
+    if ( empty( $GLOBALS['hprl_update_error_msg'] ) ) {
+        return;
+    }
+    echo '<div class="notice notice-error"><p>' . esc_html( $GLOBALS['hprl_update_error_msg'] ) . '</p></div>';
+}
+
+function hprl_log_update_error( $msg ) {
+    if ( get_option( 'hprl_debug_log', 0 ) ) {
+        error_log( 'HPRL update error: ' . $msg );
+    }
+    if ( current_user_can( 'manage_options' ) ) {
+        $GLOBALS['hprl_update_error_msg'] = 'Health Product Recommender Lite update error: ' . $msg;
+        add_action( 'admin_notices', 'hprl_show_update_error_notice' );
+    }
+}
+
 add_filter( 'pre_set_site_transient_update_plugins', 'hprl_check_plugin_update' );
 add_filter( 'plugins_api', 'hprl_plugin_update_info', 20, 3 );
 
@@ -51,11 +71,19 @@ function hprl_get_github_release() {
     ) );
 
     if ( is_wp_error( $response ) ) {
+        hprl_log_update_error( $response->get_error_message() );
+        return false;
+    }
+
+    $code = wp_remote_retrieve_response_code( $response );
+    if ( $code && 200 !== intval( $code ) ) {
+        hprl_log_update_error( 'GitHub API returned HTTP ' . $code );
         return false;
     }
 
     $data = json_decode( wp_remote_retrieve_body( $response ) );
     if ( empty( $data->tag_name ) ) {
+        hprl_log_update_error( 'Invalid release information received.' );
         return false;
     }
 
