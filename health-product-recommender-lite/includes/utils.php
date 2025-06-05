@@ -31,7 +31,7 @@ function hprl_generate_all_combos($questions) {
         foreach ($p as $idx) {
             $answers[] = array($idx);
         }
-        $combos[] = array('answers' => $answers, 'cheap' => '', 'premium' => '');
+        $combos[] = array('answers' => $answers, 'cheap' => '', 'premium' => '', 'note' => '');
     }
     return $combos;
 }
