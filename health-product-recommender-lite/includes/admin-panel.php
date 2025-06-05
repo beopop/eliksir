@@ -222,7 +222,17 @@ function hprl_results_page() {
         $out = fopen('php://output', 'w');
         fputcsv( $out, array('ID','Name','Email','Phone','Birth Year','Location','Answers','Product ID','Date') );
         foreach ( $rows as $row ) {
-            fputcsv( $out, $row );
+            fputcsv( $out, array(
+                $row['id'],
+                $row['name'],
+                $row['email'],
+                $row['phone'],
+                $row['birth_year'],
+                $row['location'],
+                implode( ',', maybe_unserialize( $row['answers'] ) ),
+                $row['product_id'],
+                $row['created_at'],
+            ) );
         }
         fclose($out);
         exit;
@@ -247,7 +257,9 @@ function hprl_results_page() {
                     <td><?php echo esc_html( $row->phone ); ?></td>
                     <td><?php echo esc_html( $row->birth_year ); ?></td>
                     <td><?php echo esc_html( $row->location ); ?></td>
-                    <td><?php echo esc_html( implode( ',', maybe_unserialize( $row->answers ) ) ); ?></td>
+                    <?php $ans = maybe_unserialize( $row->answers ); ?>
+                    <?php if ( ! is_array( $ans ) ) $ans = array( $ans ); ?>
+                    <td><?php echo esc_html( implode( ',', $ans ) ); ?></td>
                     <td><?php echo esc_html( $row->product_id ); ?></td>
                     <td><?php echo esc_html( $row->created_at ); ?></td>
                 </tr>
