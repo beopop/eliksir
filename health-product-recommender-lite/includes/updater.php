@@ -1,15 +1,54 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+add_filter( 'http_request_args', 'hprl_github_auth_header', 10, 2 );
+
+function hprl_get_github_token() {
+    if ( defined( 'HPRL_GITHUB_TOKEN' ) && HPRL_GITHUB_TOKEN ) {
+        return HPRL_GITHUB_TOKEN;
+    }
+    $token = get_option( 'hprl_github_token', '' );
+    return trim( $token );
+}
+
+function hprl_github_auth_header( $args, $url ) {
+    if ( strpos( $url, 'github.com' ) !== false || strpos( $url, 'api.github.com' ) !== false || strpos( $url, 'objects.githubusercontent.com' ) !== false ) {
+        $token = hprl_get_github_token();
+        if ( $token ) {
+            if ( empty( $args['headers'] ) ) {
+                $args['headers'] = array();
+            }
+            if ( empty( $args['headers']['Authorization'] ) ) {
+                $args['headers']['Authorization'] = 'token ' . $token;
+            }
+        }
+    }
+    return $args;
+}
+
+function hprl_add_github_token_to_url( $url ) {
+    $token = hprl_get_github_token();
+    if ( $token ) {
+        $url = add_query_arg( 'access_token', $token, $url );
+    }
+    return $url;
+}
+
 add_filter( 'pre_set_site_transient_update_plugins', 'hprl_check_plugin_update' );
 add_filter( 'plugins_api', 'hprl_plugin_update_info', 20, 3 );
 
 function hprl_get_github_release() {
+    $headers = array(
+        'Accept'     => 'application/vnd.github.v3+json',
+        'User-Agent' => 'WordPress/' . get_bloginfo( 'version' ),
+    );
+    $token = hprl_get_github_token();
+    if ( $token ) {
+        $headers['Authorization'] = 'token ' . $token;
+    }
+
     $response = wp_remote_get( 'https://api.github.com/repos/' . HPRL_UPDATE_REPO . '/releases/latest', array(
-        'headers' => array(
-            'Accept'     => 'application/vnd.github.v3+json',
-            'User-Agent' => 'WordPress/' . get_bloginfo( 'version' ),
-        ),
+        'headers' => $headers,
         'timeout' => 15,
     ) );
 
@@ -48,12 +87,13 @@ function hprl_check_plugin_update( $transient ) {
     $new_version = ltrim( $release->tag_name, 'v' );
     if ( version_compare( $new_version, HPRL_VERSION, '>' ) ) {
         $plugin = plugin_basename( HPRL_DIR . 'health-product-recommender-lite.php' );
+        $package = $release->asset_url ? $release->asset_url : $release->zipball_url;
         $transient->response[ $plugin ] = (object) array(
             'slug'        => 'health-product-recommender-lite',
             'plugin'      => $plugin,
             'new_version' => $new_version,
             'url'         => $release->html_url,
-            'package'     => $release->asset_url ? $release->asset_url : $release->zipball_url,
+            'package'     => hprl_add_github_token_to_url( $package ),
         );
     }
 
@@ -76,7 +116,8 @@ function hprl_plugin_update_info( $res, $action, $args ) {
     $res->version       = ltrim( $release->tag_name, 'v' );
     $res->author        = '<a href="https://beohosting.com">BeoHosting</a>';
     $res->homepage      = $release->html_url;
-    $res->download_link = $release->asset_url ? $release->asset_url : $release->zipball_url;
+    $download = $release->asset_url ? $release->asset_url : $release->zipball_url;
+    $res->download_link = hprl_add_github_token_to_url( $download );
     $res->sections      = array( 'description' => $release->body );
 
     return $res;

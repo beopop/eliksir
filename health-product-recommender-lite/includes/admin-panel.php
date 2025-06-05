@@ -97,6 +97,9 @@ function hprl_questions_page() {
         $debug_log = isset( $_POST['hprl_debug_log'] ) ? 1 : 0;
         update_option( 'hprl_debug_log', $debug_log );
 
+        $github_token = isset( $_POST['github_token'] ) ? sanitize_text_field( $_POST['github_token'] ) : '';
+        update_option( 'hprl_github_token', $github_token );
+
         $combos = array();
         if ( isset( $_POST['combo_cheap'] ) ) {
             $count_c = count( $_POST['combo_cheap'] );
@@ -134,6 +137,7 @@ function hprl_questions_page() {
     $products  = get_option( 'hprl_products', array( 'cheap' => '', 'premium' => '' ) );
     $combos    = get_option( 'hprl_combos', array() );
     $debug_log = intval( get_option( 'hprl_debug_log', 0 ) );
+    $github_token = get_option( 'hprl_github_token', '' );
     $per_page  = intval( get_option( 'hprl_questions_per_page', 3 ) );
     $max_q = count( $questions );
     foreach ( $combos as &$c ) {
@@ -211,6 +215,13 @@ function hprl_questions_page() {
                     <th>Prikaži log grešaka</th>
                     <td>
                         <label><input type="checkbox" name="hprl_debug_log" value="1" <?php checked( $debug_log ); ?> /> Omogući prikaz loga</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th>GitHub token</th>
+                    <td>
+                        <input type="text" name="github_token" value="<?php echo esc_attr( $github_token ); ?>" class="regular-text" />
+                        <br/><small>Personal access token za ažuriranje sa privatnog repozitorijuma</small>
                     </td>
                 </tr>
                 </tbody>
