@@ -24,6 +24,8 @@ define( 'HPRL_GITHUB_TOKEN', 'your_token_here' );
 If the update process fails:
 
 - Verify that the token is correct and has permission to access the repository.
+- If the log shows `GitHub API returned 404`, the release was not found or your
+  token cannot access the repository.
 - Enable **Debug log** in the plugin settings. When enabled the plugin writes
   update errors to `wp-content/uploads/hprl-update.log` and shows an admin
   notice if possible.

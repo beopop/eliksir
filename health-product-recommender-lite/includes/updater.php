@@ -83,6 +83,12 @@ function hprl_get_github_release() {
     }
 
     $code = wp_remote_retrieve_response_code( $response );
+    if ( $code && 404 == intval( $code ) ) {
+        hprl_log_update_error(
+            'GitHub API returned 404 (release not found or repository inaccessible).'
+        );
+        return false;
+    }
     if ( $code && 200 !== intval( $code ) ) {
         hprl_log_update_error( 'GitHub API returned HTTP ' . $code );
         return false;
