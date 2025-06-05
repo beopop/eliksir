@@ -13,6 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 define( 'HPRL_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HPRL_URL', plugin_dir_url( __FILE__ ) );
+define( 'HPRL_VERSION', '1.2' );
+define( 'HPRL_UPDATE_REPO', 'beohosting/health-product-recommender-lite' );
 
 define( 'HPRL_TABLE', $GLOBALS['wpdb']->prefix . 'health_quiz_results' );
 
@@ -66,4 +68,5 @@ require_once HPRL_DIR . 'includes/data-handler.php';
 require_once HPRL_DIR . 'includes/shortcodes.php';
 if ( is_admin() ) {
     require_once HPRL_DIR . 'includes/admin-panel.php';
+    require_once HPRL_DIR . 'includes/updater.php';
 }
