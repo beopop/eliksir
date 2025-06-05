@@ -1,0 +1,27 @@
+name: Build and Release WordPress Plugin
+
+on:
+  push:
+    tags:
+      - 'v*'  # Pokreće se kada napraviš tag kao npr. v1.0, v3 itd.
+
+jobs:
+  build:
+    name: Zip plugin and create release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Zip plugin folder
+        run: |
+          cd health-product-recommender-lite
+          zip -r ../health-product-recommender-lite.zip .
+
+      - name: Create GitHub Release and attach ZIP
+        uses: softprops/action-gh-release@v1
+        with:
+          files: health-product-recommender-lite.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
