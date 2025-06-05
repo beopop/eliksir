@@ -30,9 +30,18 @@ function hprl_github_auth_header( $args, $url ) {
 }
 
 function hprl_add_github_token_to_url( $url ) {
-    // Token no longer appended to the URL. Authentication is handled via
-    // hprl_github_auth_header which sets the Authorization header.
-    return $url;
+    $token = hprl_get_github_token();
+    if ( ! $token ) {
+        return $url;
+    }
+
+    // Skip if token already present.
+    if ( false !== strpos( $url, 'access_token=' ) ) {
+        return $url;
+    }
+
+    $sep = ( false === strpos( $url, '?' ) ) ? '?' : '&';
+    return $url . $sep . 'access_token=' . rawurlencode( $token );
 }
 
 function hprl_show_update_error_notice() {
@@ -127,6 +136,7 @@ function hprl_check_plugin_update( $transient ) {
     if ( version_compare( $new_version, HPRL_VERSION, '>' ) ) {
         $plugin = plugin_basename( HPRL_DIR . 'health-product-recommender-lite.php' );
         $package = $release->asset_url ? $release->asset_url : $release->zipball_url;
+        $package = hprl_add_github_token_to_url( $package );
         $transient->response[ $plugin ] = (object) array(
             'slug'        => 'health-product-recommender-lite',
             'plugin'      => $plugin,
@@ -156,7 +166,7 @@ function hprl_plugin_update_info( $res, $action, $args ) {
     $res->author        = '<a href="https://beohosting.com">BeoHosting</a>';
     $res->homepage      = $release->html_url;
     $download = $release->asset_url ? $release->asset_url : $release->zipball_url;
-    $res->download_link = $download;
+    $res->download_link = hprl_add_github_token_to_url( $download );
     $res->sections      = array( 'description' => $release->body );
 
     return $res;
