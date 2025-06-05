@@ -16,6 +16,18 @@ document.addEventListener('DOMContentLoaded',function(){
     debugContainer.style.display='block';
     debugLog.textContent=log;
   }
+  function updateProductInfo(type,id){
+    const btn=quiz.querySelector('.hprl-select[data-type="'+type+'"]');
+    if(!btn) return;
+    btn.dataset.product=id;
+    if(hprlData.products&&hprlData.products[id]){
+      const info=hprlData.products[id];
+      const img=btn.querySelector('img');
+      if(img&&info.img) img.src=info.img;
+      const price=btn.querySelector('.hprl-price');
+      if(price) price.innerHTML=info.price;
+    }
+  }
   function showStep(index){
     steps.forEach((s,i)=>{s.style.display=i===index?'block':'none';});
   }
@@ -97,8 +109,8 @@ document.addEventListener('DOMContentLoaded',function(){
           cheap=hprlData.combos[key].cheap;
           premium=hprlData.combos[key].premium;
         }
-        quiz.querySelector('.hprl-select[data-type="cheap"]').dataset.product=cheap;
-        quiz.querySelector('.hprl-select[data-type="premium"]').dataset.product=premium;
+        updateProductInfo('cheap',cheap);
+        updateProductInfo('premium',premium);
         const data=new FormData();
         data.append('action','hprl_save_answers');
         data.append('nonce',hprlData.nonce);
@@ -145,5 +157,7 @@ document.addEventListener('DOMContentLoaded',function(){
         .catch(()=>{alert('Greška pri dodavanju proizvoda.');showDebug('Network error');});
     });
   });
+  updateProductInfo('cheap',hprlData.cheap);
+  updateProductInfo('premium',hprlData.premium);
   showStep(0);
 });

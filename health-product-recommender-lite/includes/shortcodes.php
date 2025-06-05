@@ -29,6 +29,33 @@ function hprl_quiz_shortcode() {
         }
     }
 
+    $product_ids = array();
+    foreach ( array( $products['cheap'], $products['premium'] ) as $pid ) {
+        if ( $pid ) {
+            $product_ids[] = $pid;
+        }
+    }
+    foreach ( $combos_out as $c ) {
+        if ( ! empty( $c['cheap'] ) ) {
+            $product_ids[] = $c['cheap'];
+        }
+        if ( ! empty( $c['premium'] ) ) {
+            $product_ids[] = $c['premium'];
+        }
+    }
+    $product_ids = array_unique( $product_ids );
+    $product_data = array();
+    foreach ( $product_ids as $pid ) {
+        $prod = wc_get_product( $pid );
+        if ( $prod ) {
+            $img  = wp_get_attachment_image_url( $prod->get_image_id(), 'medium' );
+            $product_data[ $pid ] = array(
+                'img'   => $img ? $img : '',
+                'price' => $prod->get_price_html(),
+            );
+        }
+    }
+
     ob_start();
     ?>
     <div id="hprl-quiz">
@@ -75,8 +102,22 @@ function hprl_quiz_shortcode() {
         <div class="hprl-step" data-step="<?php echo $step; ?>" style="display:none;">
             <p>Preporucujemo sledece proizvode:</p>
             <div class="hprl-products">
-                <button class="hprl-select" data-type="cheap" data-product="<?php echo esc_attr( $products['cheap'] ); ?>">Jeftiniji paket</button>
-                <button class="hprl-select" data-type="premium" data-product="<?php echo esc_attr( $products['premium'] ); ?>">Skuplji paket</button>
+                <?php
+                $cheap_data   = isset( $product_data[ $products['cheap'] ] ) ? $product_data[ $products['cheap'] ] : array( 'img' => '', 'price' => '' );
+                $premium_data = isset( $product_data[ $products['premium'] ] ) ? $product_data[ $products['premium'] ] : array( 'img' => '', 'price' => '' );
+                ?>
+                <button class="hprl-select" data-type="cheap" data-product="<?php echo esc_attr( $products['cheap'] ); ?>">
+                    <?php if ( $cheap_data['img'] ) : ?>
+                        <img src="<?php echo esc_url( $cheap_data['img'] ); ?>" alt="">
+                    <?php endif; ?>
+                    <span class="hprl-price"><?php echo wp_kses_post( $cheap_data['price'] ); ?></span>
+                </button>
+                <button class="hprl-select" data-type="premium" data-product="<?php echo esc_attr( $products['premium'] ); ?>">
+                    <?php if ( $premium_data['img'] ) : ?>
+                        <img src="<?php echo esc_url( $premium_data['img'] ); ?>" alt="">
+                    <?php endif; ?>
+                    <span class="hprl-price"><?php echo wp_kses_post( $premium_data['price'] ); ?></span>
+                </button>
             </div>
         </div>
         <div id="hprl-debug-container" style="display:none;">
@@ -88,14 +129,15 @@ function hprl_quiz_shortcode() {
     wp_enqueue_style( 'hprl-style', HPRL_URL . 'assets/css/style.css', array(), '1.0' );
     wp_enqueue_script( 'hprl-script', HPRL_URL . 'assets/js/script.js', array(), '1.0', true );
     wp_localize_script( 'hprl-script', 'hprlData', array(
-        'ajaxurl' => admin_url( 'admin-ajax.php' ),
-        'nonce'   => wp_create_nonce( 'hprl_nonce' ),
-        'cheap'   => $products['cheap'],
-        'premium' => $products['premium'],
-        'checkout'=> wc_get_checkout_url(),
-        'cart_url'=> wc_get_cart_url(),
-        'combos'  => $combos_out,
-        'debug'   => $debug_log
+        'ajaxurl'  => admin_url( 'admin-ajax.php' ),
+        'nonce'    => wp_create_nonce( 'hprl_nonce' ),
+        'cheap'    => $products['cheap'],
+        'premium'  => $products['premium'],
+        'checkout' => wc_get_checkout_url(),
+        'cart_url' => wc_get_cart_url(),
+        'combos'   => $combos_out,
+        'products' => $product_data,
+        'debug'    => $debug_log
     ) );
     return ob_get_clean();
 }
