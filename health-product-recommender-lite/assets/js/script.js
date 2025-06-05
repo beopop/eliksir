@@ -7,6 +7,13 @@ document.addEventListener('DOMContentLoaded',function(){
   function showStep(index){
     steps.forEach((s,i)=>{s.style.display=i===index?'block':'none';});
   }
+  function clearErrors(scope){
+    scope.querySelectorAll('.hprl-error').forEach(e=>{e.textContent='';e.style.display='none';});
+  }
+  function showError(input,msg){
+    const err=input.parentElement.querySelector('.hprl-error');
+    if(err){err.textContent=msg;err.style.display='block';}
+  }
   function gatherIndexes(){
     const indexes=[];
     quiz.querySelectorAll('.hprl-question-group').forEach(g=>{
@@ -23,22 +30,50 @@ document.addEventListener('DOMContentLoaded',function(){
     });
     return ans;
   }
+  quiz.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      const err=inp.parentElement.querySelector('.hprl-error');
+      if(err){err.textContent='';err.style.display='none';}
+    });
+  });
+  quiz.querySelectorAll('.hprl-question-group input').forEach(inp=>{
+    inp.addEventListener('change',()=>{
+      const err=inp.closest('.hprl-question-group').querySelector('.hprl-error');
+      if(err){err.textContent='';err.style.display='none';}
+    });
+  });
   quiz.querySelectorAll('.hprl-next').forEach(btn=>{
     btn.addEventListener('click',async function(){
       const stepElem=this.closest('.hprl-step');
       const step=parseInt(stepElem.dataset.step);
+      clearErrors(stepElem);
       if(step===1){
-        const name=document.getElementById('hprl-name').value.trim();
-        const email=document.getElementById('hprl-email').value.trim();
-        const phone=document.getElementById('hprl-phone').value.trim();
-        const year=document.getElementById('hprl-year').value.trim();
-        if(!(name&&email&&phone&&year))return;
-        if(email.indexOf('@')===-1){alert('Email mora da sadrzi @');return;}
-        if(!/^[0-9]+$/.test(phone)){alert('Telefon mora da sadrzi samo brojeve');return;}
+        const nameInput=document.getElementById('hprl-name');
+        const emailInput=document.getElementById('hprl-email');
+        const phoneInput=document.getElementById('hprl-phone');
+        const yearInput=document.getElementById('hprl-year');
+        const name=nameInput.value.trim();
+        const email=emailInput.value.trim();
+        const phone=phoneInput.value.trim();
+        const year=yearInput.value.trim();
+        let valid=true;
+        if(!name){showError(nameInput,'Unesite ime i prezime.');valid=false;}
+        if(!email){showError(emailInput,'Unesite email.');valid=false;}
+        else if(!/^([^\s@]+)@([^\s@]+)\.[^\s@]+$/.test(email)){showError(emailInput,'Neispravan email.');valid=false;}
+        if(!phone){showError(phoneInput,'Unesite telefon.');valid=false;}
+        else if(!/^[0-9]+$/.test(phone)){showError(phoneInput,'Telefon mora da sadrzi samo brojeve');valid=false;}
+        if(!year){showError(yearInput,'Unesite godinu rodjenja.');valid=false;}
+        if(!valid) return;
       }else{
         let valid=true;
-        stepElem.querySelectorAll('.hprl-question-group').forEach(g=>{if(!g.querySelector('input:checked'))valid=false;});
-        if(!valid)return;
+        stepElem.querySelectorAll('.hprl-question-group').forEach(g=>{
+          if(!g.querySelector('input:checked')){
+            const err=g.querySelector('.hprl-error');
+            if(err){err.textContent='Odaberite odgovor.';err.style.display='block';}
+            valid=false;
+          }
+        });
+        if(!valid) return;
       }
       const next=step+1;
       if(next===steps.length){
@@ -62,7 +97,15 @@ document.addEventListener('DOMContentLoaded',function(){
         data.append('location',document.getElementById('hprl-location').value);
         gatherAnswers().forEach(a=>data.append('answers[]',a));
         saveAnswersPromise=fetch(hprlData.ajaxurl,{method:'POST',body:data,credentials:'same-origin'})
-          .then(r=>r.json()).then(res=>{if(res.success)resultId=res.data.result_id;});
+          .then(r=>r.json())
+          .then(res=>{
+            if(res.success){
+              resultId=res.data.result_id;
+            }else{
+              alert(res.data&&res.data.message?res.data.message:'Greška pri snimanju.');
+            }
+          })
+          .catch(()=>{alert('Greška pri snimanju.');});
       }
       showStep(next-1);
     });
@@ -76,7 +119,12 @@ document.addEventListener('DOMContentLoaded',function(){
       data.append('result_id',resultId||0);
       data.append('product',this.dataset.product);
       fetch(hprlData.ajaxurl,{method:'POST',body:data,credentials:'same-origin'})
-        .then(()=>{fetch(hprlData.cart_url+'?add-to-cart='+this.dataset.product,{credentials:'same-origin'}).then(()=>{window.location=hprlData.checkout;});});
+        .then(r=>r.json())
+        .then(()=>{
+          fetch(hprlData.cart_url+'?add-to-cart='+this.dataset.product,{credentials:'same-origin'})
+            .then(()=>{window.location=hprlData.checkout;});
+        })
+        .catch(()=>{alert('Greška pri dodavanju proizvoda.');});
     });
   });
   showStep(0);

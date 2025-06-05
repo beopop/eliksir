@@ -33,11 +33,25 @@ function hprl_quiz_shortcode() {
     <div id="hprl-quiz">
         <?php $step = 1; ?>
         <div class="hprl-step" data-step="<?php echo $step; ?>">
-            <label>Ime i prezime*<br><input type="text" id="hprl-name" required></label>
-            <label>Email*<br><input type="email" id="hprl-email" required></label>
-            <label>Telefon*<br><input type="tel" id="hprl-phone" pattern="[0-9]+" title="Samo brojevi" required></label>
-            <label>Godina rodjenja*<br><input type="number" id="hprl-year" required></label>
-            <label>Mesto stanovanja<br><input type="text" id="hprl-location"></label>
+            <label>Ime i prezime*<br>
+                <input type="text" id="hprl-name" required>
+                <span class="hprl-error" id="hprl-name-error"></span>
+            </label>
+            <label>Email*<br>
+                <input type="email" id="hprl-email" required>
+                <span class="hprl-error" id="hprl-email-error"></span>
+            </label>
+            <label>Telefon*<br>
+                <input type="tel" id="hprl-phone" pattern="[0-9]+" title="Samo brojevi" required>
+                <span class="hprl-error" id="hprl-phone-error"></span>
+            </label>
+            <label>Godina rodjenja*<br>
+                <input type="number" id="hprl-year" required>
+                <span class="hprl-error" id="hprl-year-error"></span>
+            </label>
+            <label>Mesto stanovanja<br>
+                <input type="text" id="hprl-location">
+            </label>
             <button class="hprl-next">Dalje</button>
         </div>
         <?php $q_index = 0; foreach ( $question_pages as $p_idx => $page ) : $step++; ?>
@@ -51,6 +65,7 @@ function hprl_quiz_shortcode() {
                             <?php echo esc_html( $ans ); ?>
                         </label>
                     <?php endforeach; ?>
+                    <span class="hprl-error"></span>
                 </div>
             <?php $q_index++; endforeach; ?>
             <button class="hprl-next">Dalje</button>
