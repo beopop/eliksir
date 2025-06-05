@@ -20,16 +20,21 @@ function hprl_save_quiz() {
     $answers = isset( $_POST['answers'] ) ? array_map( 'sanitize_text_field', $_POST['answers'] ) : array();
     $product_id = intval( $_POST['product'] );
 
-    $wpdb->insert( HPRL_TABLE, [
-        'name' => $name,
-        'email' => $email,
-        'phone' => $phone,
+    $inserted = $wpdb->insert( HPRL_TABLE, [
+        'name'       => $name,
+        'email'      => $email,
+        'phone'      => $phone,
         'birth_year' => $birth_year,
-        'location' => $location,
-        'answers' => maybe_serialize( $answers ),
+        'location'   => $location,
+        'answers'    => maybe_serialize( $answers ),
         'product_id' => $product_id,
         'created_at' => current_time( 'mysql' )
     ] );
+
+    if ( false === $inserted ) {
+        error_log( 'HPRL insert error: ' . $wpdb->last_error );
+        wp_send_json_error( array( 'message' => 'Greška pri snimanju.' ) );
+    }
 
     wp_send_json_success();
 }
@@ -52,16 +57,21 @@ function hprl_save_answers() {
     $location = sanitize_text_field( $_POST['location'] );
     $answers = isset( $_POST['answers'] ) ? array_map( 'sanitize_text_field', $_POST['answers'] ) : array();
 
-    $wpdb->insert( HPRL_TABLE, [
-        'name' => $name,
-        'email' => $email,
-        'phone' => $phone,
+    $inserted = $wpdb->insert( HPRL_TABLE, [
+        'name'       => $name,
+        'email'      => $email,
+        'phone'      => $phone,
         'birth_year' => $birth_year,
-        'location' => $location,
-        'answers' => maybe_serialize( $answers ),
+        'location'   => $location,
+        'answers'    => maybe_serialize( $answers ),
         'product_id' => 0,
         'created_at' => current_time( 'mysql' )
     ] );
+
+    if ( false === $inserted ) {
+        error_log( 'HPRL insert error: ' . $wpdb->last_error );
+        wp_send_json_error( array( 'message' => 'Greška pri snimanju.' ) );
+    }
 
     wp_send_json_success( array( 'result_id' => $wpdb->insert_id ) );
 }
@@ -74,7 +84,11 @@ function hprl_set_product() {
     $id = intval( $_POST['result_id'] );
     $product_id = intval( $_POST['product'] );
     if ( $id > 0 ) {
-        $wpdb->update( HPRL_TABLE, [ 'product_id' => $product_id ], [ 'id' => $id ] );
+        $updated = $wpdb->update( HPRL_TABLE, [ 'product_id' => $product_id ], [ 'id' => $id ] );
+        if ( false === $updated ) {
+            error_log( 'HPRL update error: ' . $wpdb->last_error );
+            wp_send_json_error();
+        }
         wp_send_json_success();
     }
     wp_send_json_error();
