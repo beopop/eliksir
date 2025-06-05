@@ -11,6 +11,23 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   });
   next2.addEventListener('click', function(){
+    let valid=true;
+    const indexes=[];
+    quiz.querySelectorAll('.hprl-question-group').forEach(g=>{
+      const sel=g.querySelector('input:checked');
+      if(!sel){valid=false;return;}
+      indexes.push(sel.dataset.index);
+    });
+    if(!valid) return;
+    let cheap=hprlData.cheap;
+    let premium=hprlData.premium;
+    const key=indexes.join('|');
+    if(hprlData.combos && hprlData.combos[key]){
+      cheap=hprlData.combos[key].cheap;
+      premium=hprlData.combos[key].premium;
+    }
+    quiz.querySelector('.hprl-select[data-type="cheap"]').dataset.product=cheap;
+    quiz.querySelector('.hprl-select[data-type="premium"]').dataset.product=premium;
     steps[1].style.display='none';
     steps[2].style.display='block';
   });
@@ -25,7 +42,10 @@ document.addEventListener('DOMContentLoaded', function(){
       data.append('birth_year', document.getElementById('hprl-year').value);
       data.append('location', document.getElementById('hprl-location').value);
       let answers=[];
-      quiz.querySelectorAll('.hprl-question').forEach(q=>{answers.push(q.value);});
+      quiz.querySelectorAll('.hprl-question-group').forEach(g=>{
+        const sel=g.querySelector('input:checked');
+        if(sel) answers.push(sel.value);
+      });
       answers.forEach(a=>data.append('answers[]',a));
       data.append('product', this.dataset.product);
       fetch(hprlData.ajaxurl, {method:'POST', body:data, credentials:'same-origin'})
