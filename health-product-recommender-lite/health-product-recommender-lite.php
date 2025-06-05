@@ -14,7 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 define( 'HPRL_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HPRL_URL', plugin_dir_url( __FILE__ ) );
 define( 'HPRL_VERSION', '1.3' );
-define( 'HPRL_UPDATE_REPO', 'beohosting/health-product-recommender-lite' );
+define( 'HPRL_UPDATE_REPO', 'beopop/eliksir' );
+define( 'HPRL_UPDATE_ASSET', 'health-product-recommender-lite.zip' );
 
 define( 'HPRL_TABLE', $GLOBALS['wpdb']->prefix . 'health_quiz_results' );
 
