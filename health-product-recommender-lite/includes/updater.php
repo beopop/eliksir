@@ -45,6 +45,13 @@ function hprl_show_update_error_notice() {
 function hprl_log_update_error( $msg ) {
     if ( get_option( 'hprl_debug_log', 0 ) ) {
         error_log( 'HPRL update error: ' . $msg );
+        // Also write update errors to a dedicated log file inside wp-content/uploads
+        $upload_dir = wp_upload_dir();
+        if ( ! empty( $upload_dir['basedir'] ) ) {
+            $log_file = trailingslashit( $upload_dir['basedir'] ) . 'hprl-update.log';
+            $entry = '[' . date( 'Y-m-d H:i:s' ) . '] ' . $msg . PHP_EOL;
+            @file_put_contents( $log_file, $entry, FILE_APPEND );
+        }
     }
     if ( current_user_can( 'manage_options' ) ) {
         $GLOBALS['hprl_update_error_msg'] = 'Health Product Recommender Lite update error: ' . $msg;

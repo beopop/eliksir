@@ -24,7 +24,9 @@ define( 'HPRL_GITHUB_TOKEN', 'your_token_here' );
 If the update process fails:
 
 - Verify that the token is correct and has permission to access the repository.
-- Enable **Debug log** in the plugin settings to display any update errors.
+- Enable **Debug log** in the plugin settings. When enabled the plugin writes
+  update errors to `wp-content/uploads/hprl-update.log` and shows an admin
+  notice if possible.
 - Manual installation of a release ZIP is always possible if automatic updates do not work.
 
 ## Version history
