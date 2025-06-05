@@ -20,8 +20,14 @@ add_action( 'plugins_loaded', 'hprl_maybe_create_table' );
 add_action( 'init', 'hprl_maybe_create_table' );
 function hprl_maybe_create_table() {
     global $wpdb;
-    if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", HPRL_TABLE ) ) != HPRL_TABLE ) {
+    $table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", HPRL_TABLE ) );
+    if ( $table_exists != HPRL_TABLE ) {
         hprl_activate();
+    } else {
+        $column = $wpdb->get_results( "SHOW COLUMNS FROM `" . HPRL_TABLE . "` LIKE 'product_id'" );
+        if ( empty( $column ) ) {
+            $wpdb->query( "ALTER TABLE `" . HPRL_TABLE . "` ADD `product_id` bigint(20) NOT NULL DEFAULT 0 AFTER `answers`" );
+        }
     }
 }
 
