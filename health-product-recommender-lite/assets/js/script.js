@@ -36,6 +36,8 @@ document.addEventListener('DOMContentLoaded',function(){
       if(img&&info.img) img.src=info.img;
       const price=btn.querySelector('.hprl-price');
       if(price) price.innerHTML=info.price;
+      const nameEl=btn.querySelector('.hprl-name');
+      if(nameEl&&info.name) nameEl.textContent=info.name;
     }
   }
   function showStep(index){
