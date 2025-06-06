@@ -104,6 +104,7 @@ document.addEventListener('DOMContentLoaded',function(){
     steps.forEach((s,i)=>{s.style.display=i===index?'block':'none';});
     saveState();
     steps[index].scrollIntoView({behavior:'smooth',block:'start'});
+    window.scrollTo({top:0,behavior:'smooth'});
   }
   function clearErrors(scope){
     scope.querySelectorAll('.hprl-error').forEach(e=>{e.textContent='';e.style.display='none';});
