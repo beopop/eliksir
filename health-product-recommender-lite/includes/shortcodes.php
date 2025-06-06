@@ -129,6 +129,7 @@ function hprl_quiz_shortcode() {
                     <?php endif; ?>
                     <span class="hprl-price"><?php echo wp_kses_post( $cheap_data['price'] ); ?></span>
                     <span class="hprl-label">Pakovanje za mesec dana</span>
+                    <span class="hprl-buy-now">Kupi sada</span>
                 </button>
                 <button class="hprl-select" data-type="premium" data-product="<?php echo esc_attr( $products['premium'] ); ?>">
                     <?php if ( $premium_data['img'] ) : ?>
@@ -139,6 +140,7 @@ function hprl_quiz_shortcode() {
                     <?php endif; ?>
                     <span class="hprl-price"><?php echo wp_kses_post( $premium_data['price'] ); ?></span>
                     <span class="hprl-label">Jeftinija cena za dužu upotrebu</span>
+                    <span class="hprl-buy-now">Kupi sada</span>
                 </button>
             </div>
             <div id="hprl-note" class="hprl-note" style="display:none;"></div>
