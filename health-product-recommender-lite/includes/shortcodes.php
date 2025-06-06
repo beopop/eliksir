@@ -113,7 +113,7 @@ function hprl_quiz_shortcode() {
         </div>
         <?php endforeach; $step++; ?>
         <div class="hprl-step" data-step="<?php echo $step; ?>" style="display:none;">
-            <p>Preporucujemo sledece proizvode:</p>
+            <p class="hprl-results-title">Preporucujemo sledece proizvode:</p>
             <div class="hprl-products">
                 <?php
                 $cheap_data   = isset( $product_data[ $products['cheap'] ] ) ? $product_data[ $products['cheap'] ] : array( 'img' => '', 'price' => '', 'name' => '' );
