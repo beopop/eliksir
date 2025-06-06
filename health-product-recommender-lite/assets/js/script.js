@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded',function(){
   const steps=Array.from(quiz.querySelectorAll('.hprl-step'));
   let resultId=null;
   let saveAnswersPromise=null;
+  const STORAGE_KEY='hprl_quiz_state';
+  let currentStep=0;
   const debugMode=!!hprlData.debug;
   const debugContainer=document.getElementById('hprl-debug-container');
   const debugToggle=document.getElementById('hprl-debug-toggle');
@@ -40,8 +42,67 @@ document.addEventListener('DOMContentLoaded',function(){
       if(nameEl&&info.name) nameEl.textContent=info.name;
     }
   }
+  function applyResults(){
+    const indexes=gatherIndexes();
+    let cheap=hprlData.cheap;
+    let premium=hprlData.premium;
+    const key=indexes.join('|');
+    let note='';
+    if(hprlData.combos&&hprlData.combos[key]){
+      cheap=hprlData.combos[key].cheap;
+      premium=hprlData.combos[key].premium;
+      note=hprlData.combos[key].note||'';
+    }
+    updateProductInfo('cheap',cheap);
+    updateProductInfo('premium',premium);
+    updateNote(note);
+  }
+  function saveState(){
+    try{
+      const state={
+        step:currentStep,
+        resultId:resultId,
+        first_name:document.getElementById('hprl-first-name').value,
+        last_name:document.getElementById('hprl-last-name').value,
+        email:document.getElementById('hprl-email').value,
+        phone:document.getElementById('hprl-phone').value,
+        year:document.getElementById('hprl-year').value,
+        location:document.getElementById('hprl-location').value,
+        answers:{}
+      };
+      quiz.querySelectorAll('.hprl-question-group').forEach(g=>{
+        const sel=g.querySelector('input:checked');
+        if(sel) state.answers[g.dataset.question]=sel.dataset.index;
+      });
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+    }catch(e){}
+  }
+  function loadState(){
+    try{
+      const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+      if(!saved) return;
+      if(saved.first_name) document.getElementById('hprl-first-name').value=saved.first_name;
+      if(saved.last_name) document.getElementById('hprl-last-name').value=saved.last_name;
+      if(saved.email) document.getElementById('hprl-email').value=saved.email;
+      if(saved.phone) document.getElementById('hprl-phone').value=saved.phone;
+      if(saved.year) document.getElementById('hprl-year').value=saved.year;
+      if(saved.location) document.getElementById('hprl-location').value=saved.location;
+      if(saved.answers){
+        Object.keys(saved.answers).forEach(q=>{
+          const input=quiz.querySelector('.hprl-question-group[data-question="'+q+'"] input[data-index="'+saved.answers[q]+'"]');
+          if(input) input.checked=true;
+        });
+      }
+      if(saved.resultId) resultId=saved.resultId;
+      currentStep=Math.min(saved.step||0,steps.length-1);
+      applyResults();
+      showStep(currentStep);
+    }catch(e){}
+  }
   function showStep(index){
+    currentStep=index;
     steps.forEach((s,i)=>{s.style.display=i===index?'block':'none';});
+    saveState();
   }
   function clearErrors(scope){
     scope.querySelectorAll('.hprl-error').forEach(e=>{e.textContent='';e.style.display='none';});
@@ -70,12 +131,14 @@ document.addEventListener('DOMContentLoaded',function(){
     inp.addEventListener('input',()=>{
       const err=inp.parentElement.querySelector('.hprl-error');
       if(err){err.textContent='';err.style.display='none';}
+      saveState();
     });
   });
   quiz.querySelectorAll('.hprl-question-group input').forEach(inp=>{
     inp.addEventListener('change',()=>{
       const err=inp.closest('.hprl-question-group').querySelector('.hprl-error');
       if(err){err.textContent='';err.style.display='none';}
+      saveState();
     });
   });
   quiz.querySelectorAll('.hprl-next').forEach(btn=>{
@@ -144,6 +207,7 @@ document.addEventListener('DOMContentLoaded',function(){
           .then(res=>{
             if(res.success){
               resultId=res.data.result_id;
+              saveState();
             }else{
               alert(res.data&&res.data.message?res.data.message:'Greška pri snimanju.');
               if(res.data&&res.data.log) showDebug(res.data.log);
@@ -165,6 +229,7 @@ document.addEventListener('DOMContentLoaded',function(){
           city:document.getElementById('hprl-location').value.trim()
         };
         localStorage.setItem('hprl_checkout',JSON.stringify(checkoutData));
+        localStorage.removeItem(STORAGE_KEY);
       }catch(e){}
       if(saveAnswersPromise) await saveAnswersPromise;
       const data=new FormData();
@@ -189,5 +254,5 @@ document.addEventListener('DOMContentLoaded',function(){
   updateProductInfo('cheap',hprlData.cheap);
   updateProductInfo('premium',hprlData.premium);
   updateNote('');
-  showStep(0);
+  loadState();
 });
