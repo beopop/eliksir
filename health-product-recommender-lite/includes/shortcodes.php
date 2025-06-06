@@ -96,9 +96,9 @@ function hprl_quiz_shortcode() {
                 <div class="hprl-question-group" data-question="<?php echo $q_index; ?>">
                     <p><?php echo esc_html( $q['text'] ); ?></p>
                     <?php foreach ( $q['answers'] as $a_idx => $ans ) : ?>
-                        <label>
+                        <label class="hprl-answer">
                             <input type="radio" name="q<?php echo $q_index; ?>" class="hprl-question" data-index="<?php echo $a_idx; ?>" value="<?php echo esc_attr( $ans ); ?>" required>
-                            <?php echo esc_html( $ans ); ?>
+                            <span><?php echo esc_html( $ans ); ?></span>
                         </label>
                     <?php endforeach; ?>
                     <span class="hprl-error"></span>
