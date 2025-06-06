@@ -9,11 +9,11 @@
 #hprl-quiz .hprl-price{display:block;margin-top:5px;}
 #hprl-debug-log{background:#f5f5f5;padding:10px;border:1px solid #ccc;white-space:pre-wrap;}
 .hprl-note{background:#e6f4ea;border-left:5px solid #3aa15c;padding:10px;margin-top:15px;border-radius:4px;color:#2f5d3c;}
-#hprl-quiz .hprl-next{background:#0073aa;color:#fff;padding:12px 24px;font-size:16px;border:none;border-radius:4px;}
-#hprl-quiz .hprl-next:hover{background:#006799;}
+#hprl-quiz .hprl-next{background:rgba(0,88,64,1);color:#fff;padding:12px 24px;font-size:16px;border:none;border-radius:4px;}
+#hprl-quiz .hprl-next:hover{background:rgba(0,88,64,0.8);}
 .hprl-question-group{margin-bottom:15px;}
 .hprl-question-group p{margin-bottom:8px;font-weight:bold;}
 .hprl-question-group label.hprl-answer{display:inline-block;margin-right:10px;margin-bottom:10px;}
 .hprl-question-group label.hprl-answer input{display:none;}
 .hprl-question-group label.hprl-answer span{display:block;padding:8px 15px;border:1px solid #ccc;border-radius:4px;background:#f2f2f2;cursor:pointer;transition:background .3s;}
-.hprl-question-group label.hprl-answer input:checked+span{background:#0073aa;color:#fff;border-color:#0073aa;}
+.hprl-question-group label.hprl-answer input:checked+span{background:rgba(0,88,64,1);color:#fff;border-color:rgba(0,88,64,1);}

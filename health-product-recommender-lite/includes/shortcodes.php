@@ -69,9 +69,13 @@ function hprl_quiz_shortcode() {
     <div id="hprl-quiz">
         <?php $step = 1; ?>
         <div class="hprl-step" data-step="<?php echo $step; ?>">
-            <label>Ime i prezime*<br>
-                <input type="text" id="hprl-name" required>
-                <span class="hprl-error" id="hprl-name-error"></span>
+            <label>Ime*<br>
+                <input type="text" id="hprl-first-name" required>
+                <span class="hprl-error" id="hprl-first-name-error"></span>
+            </label>
+            <label>Prezime*<br>
+                <input type="text" id="hprl-last-name" required>
+                <span class="hprl-error" id="hprl-last-name-error"></span>
             </label>
             <label>Email*<br>
                 <input type="email" id="hprl-email" required>

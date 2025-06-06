@@ -22,7 +22,7 @@ function hprl_handle_export() {
 
     global $wpdb;
     $rows = $wpdb->get_results( "SELECT * FROM " . HPRL_TABLE . " ORDER BY created_at DESC", ARRAY_A );
-    $header = array( 'ID','Name','Email','Phone','Birth Year','Location','Answers','Product ID','Date' );
+    $header = array( 'ID','First Name','Last Name','Email','Phone','Birth Year','Location','Answers','Product ID','Date' );
 
     header( 'Content-Type: text/csv' );
     header( 'Content-Disposition: attachment; filename="hprl-results.csv"' );
@@ -31,7 +31,8 @@ function hprl_handle_export() {
     foreach ( $rows as $row ) {
         fputcsv( $out, array(
             $row['id'],
-            $row['name'],
+            isset( $row['first_name'] ) ? $row['first_name'] : '',
+            isset( $row['last_name'] ) ? $row['last_name'] : '',
             $row['email'],
             $row['phone'],
             $row['birth_year'],
@@ -308,14 +309,15 @@ function hprl_results_page() {
         <table class="widefat">
             <thead>
             <tr>
-                <th>ID</th><th>Ime</th><th>Email</th><th>Telefon</th><th>Godina</th><th>Mesto</th><th>Odgovori</th><th>Proizvod</th><th>Datum</th><th>Akcija</th>
+                <th>ID</th><th>Ime</th><th>Prezime</th><th>Email</th><th>Telefon</th><th>Godina</th><th>Mesto</th><th>Odgovori</th><th>Proizvod</th><th>Datum</th><th>Akcija</th>
             </tr>
             </thead>
             <tbody>
             <?php foreach ( $results as $row ) : ?>
                 <tr>
                     <td><?php echo esc_html( $row->id ); ?></td>
-                    <td><?php echo esc_html( $row->name ); ?></td>
+                    <td><?php echo esc_html( $row->first_name ); ?></td>
+                    <td><?php echo esc_html( $row->last_name ); ?></td>
                     <td><?php echo esc_html( $row->email ); ?></td>
                     <td><?php echo esc_html( $row->phone ); ?></td>
                     <td><?php echo esc_html( $row->birth_year ); ?></td>
