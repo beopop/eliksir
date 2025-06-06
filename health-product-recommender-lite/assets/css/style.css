@@ -6,7 +6,9 @@
 @media(max-width:600px){.hprl-products{flex-direction:column;}}
 .hprl-error{color:red;font-size:.9em;display:none;}
 #hprl-quiz .hprl-select img{max-width:120px;display:block;margin:0 auto 5px;}
+#hprl-quiz .hprl-name{display:block;font-weight:bold;margin-top:5px;}
 #hprl-quiz .hprl-price{display:block;margin-top:5px;}
+#hprl-quiz .hprl-label{display:block;font-size:.9em;color:#555;}
 #hprl-debug-log{background:#f5f5f5;padding:10px;border:1px solid #ccc;white-space:pre-wrap;}
 .hprl-note{background:#e6f4ea;border-left:5px solid #3aa15c;padding:10px;margin-top:15px;border-radius:4px;color:#2f5d3c;}
 #hprl-quiz .hprl-next{background:rgba(0,88,64,1);color:#fff;padding:12px 24px;font-size:16px;border:none;border-radius:4px;}

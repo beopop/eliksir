@@ -60,6 +60,7 @@ function hprl_quiz_shortcode() {
             $product_data[ $pid ] = array(
                 'img'   => $img ? $img : '',
                 'price' => $prod->get_price_html(),
+                'name'  => $prod->get_name(),
             );
         }
     }
@@ -115,20 +116,28 @@ function hprl_quiz_shortcode() {
             <p>Preporucujemo sledece proizvode:</p>
             <div class="hprl-products">
                 <?php
-                $cheap_data   = isset( $product_data[ $products['cheap'] ] ) ? $product_data[ $products['cheap'] ] : array( 'img' => '', 'price' => '' );
-                $premium_data = isset( $product_data[ $products['premium'] ] ) ? $product_data[ $products['premium'] ] : array( 'img' => '', 'price' => '' );
+                $cheap_data   = isset( $product_data[ $products['cheap'] ] ) ? $product_data[ $products['cheap'] ] : array( 'img' => '', 'price' => '', 'name' => '' );
+                $premium_data = isset( $product_data[ $products['premium'] ] ) ? $product_data[ $products['premium'] ] : array( 'img' => '', 'price' => '', 'name' => '' );
                 ?>
                 <button class="hprl-select" data-type="cheap" data-product="<?php echo esc_attr( $products['cheap'] ); ?>">
                     <?php if ( $cheap_data['img'] ) : ?>
                         <img src="<?php echo esc_url( $cheap_data['img'] ); ?>" alt="">
                     <?php endif; ?>
+                    <?php if ( $cheap_data['name'] ) : ?>
+                        <span class="hprl-name"><?php echo esc_html( $cheap_data['name'] ); ?></span>
+                    <?php endif; ?>
                     <span class="hprl-price"><?php echo wp_kses_post( $cheap_data['price'] ); ?></span>
+                    <span class="hprl-label">Pakovanje za mesec dana</span>
                 </button>
                 <button class="hprl-select" data-type="premium" data-product="<?php echo esc_attr( $products['premium'] ); ?>">
                     <?php if ( $premium_data['img'] ) : ?>
                         <img src="<?php echo esc_url( $premium_data['img'] ); ?>" alt="">
                     <?php endif; ?>
+                    <?php if ( $premium_data['name'] ) : ?>
+                        <span class="hprl-name"><?php echo esc_html( $premium_data['name'] ); ?></span>
+                    <?php endif; ?>
                     <span class="hprl-price"><?php echo wp_kses_post( $premium_data['price'] ); ?></span>
+                    <span class="hprl-label">Jeftinija cena za dužu upotrebu</span>
                 </button>
             </div>
             <div id="hprl-note" class="hprl-note" style="display:none;"></div>
