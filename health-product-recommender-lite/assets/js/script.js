@@ -154,6 +154,16 @@ document.addEventListener('DOMContentLoaded',function(){
   });
   quiz.querySelectorAll('.hprl-select').forEach(btn=>{
     btn.addEventListener('click',async function(){
+      try{
+        const checkoutData={
+          first_name:document.getElementById('hprl-first-name').value.trim(),
+          last_name:document.getElementById('hprl-last-name').value.trim(),
+          email:document.getElementById('hprl-email').value.trim(),
+          phone:document.getElementById('hprl-phone').value.trim(),
+          city:document.getElementById('hprl-location').value.trim()
+        };
+        localStorage.setItem('hprl_checkout',JSON.stringify(checkoutData));
+      }catch(e){}
       if(saveAnswersPromise) await saveAnswersPromise;
       const data=new FormData();
       data.append('action','hprl_set_product');

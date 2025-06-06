@@ -79,6 +79,12 @@ function hprl_uninstall() {
 require_once HPRL_DIR . 'includes/utils.php';
 require_once HPRL_DIR . 'includes/data-handler.php';
 require_once HPRL_DIR . 'includes/shortcodes.php';
+add_action( 'wp_enqueue_scripts', 'hprl_enqueue_checkout_fill_script' );
+function hprl_enqueue_checkout_fill_script() {
+    if ( function_exists( 'is_checkout' ) && is_checkout() && ! is_wc_endpoint_url( 'order-received' ) ) {
+        wp_enqueue_script( 'hprl-checkout-fill', HPRL_URL . 'assets/js/checkout-fill.js', array( 'jquery' ), HPRL_VERSION, true );
+    }
+}
 if ( is_admin() ) {
     require_once HPRL_DIR . 'includes/admin-panel.php';
     require_once HPRL_DIR . 'includes/updater.php';
