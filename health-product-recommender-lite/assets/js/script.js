@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded',function(){
     currentStep=index;
     steps.forEach((s,i)=>{s.style.display=i===index?'block':'none';});
     saveState();
-    window.scrollTo({top:quiz.offsetTop,behavior:'smooth'});
+    steps[index].scrollIntoView({behavior:'smooth',block:'start'});
   }
   function clearErrors(scope){
     scope.querySelectorAll('.hprl-error').forEach(e=>{e.textContent='';e.style.display='none';});
