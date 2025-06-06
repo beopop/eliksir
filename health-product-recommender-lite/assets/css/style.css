@@ -16,6 +16,8 @@
 .hprl-note{background:#e6f4ea;border-left:5px solid #3aa15c;padding:10px;margin-top:15px;border-radius:4px;color:#2f5d3c;}
 #hprl-quiz .hprl-next{background:rgba(0,88,64,1);color:#fff;padding:12px 24px;font-size:16px;border:none;border-radius:4px;}
 #hprl-quiz .hprl-next:hover{background:rgba(0,88,64,0.8);}
+#hprl-quiz .hprl-prev{background:#ccc;color:#000;padding:12px 24px;font-size:16px;border:none;border-radius:4px;margin-right:10px;}
+#hprl-quiz .hprl-prev:hover{background:#bbb;}
 .hprl-question-group{margin-bottom:15px;}
 .hprl-question-group p{margin-bottom:8px;font-weight:bold;}
 .hprl-question-group label.hprl-answer{display:inline-block;margin-right:10px;margin-bottom:10px;}
