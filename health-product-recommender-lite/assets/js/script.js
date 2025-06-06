@@ -103,6 +103,7 @@ document.addEventListener('DOMContentLoaded',function(){
     currentStep=index;
     steps.forEach((s,i)=>{s.style.display=i===index?'block':'none';});
     saveState();
+    window.scrollTo({top:quiz.offsetTop,behavior:'smooth'});
   }
   function clearErrors(scope){
     scope.querySelectorAll('.hprl-error').forEach(e=>{e.textContent='';e.style.display='none';});
@@ -216,6 +217,14 @@ document.addEventListener('DOMContentLoaded',function(){
           .catch(()=>{alert('Greška pri snimanju.');showDebug('Network error');});
       }
       showStep(next-1);
+    });
+  });
+  quiz.querySelectorAll('.hprl-prev').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      const stepElem=this.closest('.hprl-step');
+      const step=parseInt(stepElem.dataset.step);
+      const prev=step-1;
+      showStep(prev-1);
     });
   });
   quiz.querySelectorAll('.hprl-select').forEach(btn=>{

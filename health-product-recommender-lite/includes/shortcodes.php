@@ -109,6 +109,7 @@ function hprl_quiz_shortcode() {
                     <span class="hprl-error"></span>
                 </div>
             <?php $q_index++; endforeach; ?>
+            <button class="hprl-prev">Nazad</button>
             <button class="hprl-next">Dalje</button>
         </div>
         <?php endforeach; $step++; ?>
@@ -141,6 +142,7 @@ function hprl_quiz_shortcode() {
                 </button>
             </div>
             <div id="hprl-note" class="hprl-note" style="display:none;"></div>
+            <button class="hprl-prev">Nazad</button>
         </div>
         <div id="hprl-debug-container" style="display:none;">
             <label><input type="checkbox" id="hprl-debug-toggle"> Prikaži log greške</label>
