@@ -82,16 +82,19 @@ document.addEventListener('DOMContentLoaded',function(){
       const step=parseInt(stepElem.dataset.step);
       clearErrors(stepElem);
       if(step===1){
-        const nameInput=document.getElementById('hprl-name');
+        const firstNameInput=document.getElementById('hprl-first-name');
+        const lastNameInput=document.getElementById('hprl-last-name');
         const emailInput=document.getElementById('hprl-email');
         const phoneInput=document.getElementById('hprl-phone');
         const yearInput=document.getElementById('hprl-year');
-        const name=nameInput.value.trim();
+        const firstName=firstNameInput.value.trim();
+        const lastName=lastNameInput.value.trim();
         const email=emailInput.value.trim();
         const phone=phoneInput.value.trim();
         const year=yearInput.value.trim();
         let valid=true;
-        if(!name){showError(nameInput,'Unesite ime i prezime.');valid=false;}
+        if(!firstName){showError(firstNameInput,'Unesite ime.');valid=false;}
+        if(!lastName){showError(lastNameInput,'Unesite prezime.');valid=false;}
         if(!email){showError(emailInput,'Unesite email.');valid=false;}
         else if(!/^([^\s@]+)@([^\s@]+)\.[^\s@]+$/.test(email)){showError(emailInput,'Neispravan email.');valid=false;}
         if(!phone){showError(phoneInput,'Unesite telefon.');valid=false;}
@@ -127,7 +130,8 @@ document.addEventListener('DOMContentLoaded',function(){
         const data=new FormData();
         data.append('action','hprl_save_answers');
         data.append('nonce',hprlData.nonce);
-        data.append('name',document.getElementById('hprl-name').value);
+        data.append('first_name',document.getElementById('hprl-first-name').value);
+        data.append('last_name',document.getElementById('hprl-last-name').value);
         data.append('email',document.getElementById('hprl-email').value);
         data.append('phone',document.getElementById('hprl-phone').value);
         data.append('birth_year',document.getElementById('hprl-year').value);

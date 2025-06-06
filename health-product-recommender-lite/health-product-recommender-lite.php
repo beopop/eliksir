@@ -3,7 +3,7 @@
 Plugin Name: Health Product Recommender Lite
 Plugin URI: https://beohosting.com/plugins/health-product-recommender-lite
 Description: Lagani, responzivni WordPress plugin koji generiše preporuke proizvoda na osnovu zdravstvenog upitnika, potpuno kompatibilan sa Woodmart temom i Elementorom.
-Version: 1.3.9
+Version: 1.4.0
 Author: BeoHosting
 Author URI: https://beohosting.com
 License: GPL2+
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 define( 'HPRL_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HPRL_URL', plugin_dir_url( __FILE__ ) );
-define( 'HPRL_VERSION', '1.3.9' );
+define( 'HPRL_VERSION', '1.4.0' );
 define( 'HPRL_UPDATE_REPO', 'beopop/eliksir' );
 define( 'HPRL_UPDATE_ASSET', 'health-product-recommender-lite.zip' );
 if ( ! defined( 'HPRL_GITHUB_TOKEN' ) ) {
@@ -34,6 +34,14 @@ function hprl_maybe_create_table() {
         if ( empty( $column ) ) {
             $wpdb->query( "ALTER TABLE `" . HPRL_TABLE . "` ADD `product_id` bigint(20) NOT NULL DEFAULT 0 AFTER `answers`" );
         }
+        $column = $wpdb->get_results( "SHOW COLUMNS FROM `" . HPRL_TABLE . "` LIKE 'first_name'" );
+        if ( empty( $column ) ) {
+            $wpdb->query( "ALTER TABLE `" . HPRL_TABLE . "` ADD `first_name` varchar(200) NOT NULL AFTER `id`" );
+        }
+        $column = $wpdb->get_results( "SHOW COLUMNS FROM `" . HPRL_TABLE . "` LIKE 'last_name'" );
+        if ( empty( $column ) ) {
+            $wpdb->query( "ALTER TABLE `" . HPRL_TABLE . "` ADD `last_name` varchar(200) NOT NULL AFTER `first_name`" );
+        }
     }
 }
 
@@ -43,7 +51,8 @@ function hprl_activate() {
     $charset_collate = $wpdb->get_charset_collate();
     $sql = "CREATE TABLE IF NOT EXISTS " . HPRL_TABLE . " (
         id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-        name varchar(200) NOT NULL,
+        first_name varchar(200) NOT NULL,
+        last_name varchar(200) NOT NULL,
         email varchar(200) NOT NULL,
         phone varchar(100) NOT NULL,
         birth_year int(4) NOT NULL,

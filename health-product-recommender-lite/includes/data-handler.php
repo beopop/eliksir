@@ -7,7 +7,8 @@ function hprl_save_quiz() {
     check_ajax_referer( 'hprl_nonce', 'nonce' );
     global $wpdb;
     $debug = intval( get_option( 'hprl_debug_log', 0 ) );
-    $name = sanitize_text_field( $_POST['name'] );
+    $first_name = sanitize_text_field( $_POST['first_name'] );
+    $last_name  = sanitize_text_field( $_POST['last_name'] );
     $email = sanitize_email( $_POST['email'] );
     if ( ! is_email( $email ) ) {
         wp_send_json_error( array( 'message' => 'Neispravan email.' ) );
@@ -22,7 +23,8 @@ function hprl_save_quiz() {
     $product_id = intval( $_POST['product'] );
 
     $inserted = $wpdb->insert( HPRL_TABLE, [
-        'name'       => $name,
+        'first_name' => $first_name,
+        'last_name'  => $last_name,
         'email'      => $email,
         'phone'      => $phone,
         'birth_year' => $birth_year,
@@ -50,7 +52,8 @@ function hprl_save_answers() {
     check_ajax_referer( 'hprl_nonce', 'nonce' );
     global $wpdb;
     $debug = intval( get_option( 'hprl_debug_log', 0 ) );
-    $name = sanitize_text_field( $_POST['name'] );
+    $first_name = sanitize_text_field( $_POST['first_name'] );
+    $last_name  = sanitize_text_field( $_POST['last_name'] );
     $email = sanitize_email( $_POST['email'] );
     if ( ! is_email( $email ) ) {
         wp_send_json_error( array( 'message' => 'Neispravan email.' ) );
@@ -64,7 +67,8 @@ function hprl_save_answers() {
     $answers = isset( $_POST['answers'] ) ? array_map( 'sanitize_text_field', $_POST['answers'] ) : array();
 
     $inserted = $wpdb->insert( HPRL_TABLE, [
-        'name'       => $name,
+        'first_name' => $first_name,
+        'last_name'  => $last_name,
         'email'      => $email,
         'phone'      => $phone,
         'birth_year' => $birth_year,
