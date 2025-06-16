@@ -41,7 +41,7 @@ function hprl_quiz_shortcode() {
             $img  = wp_get_attachment_image_url( $prod->get_image_id(), 'medium' );
             $price_html = $prod->get_price_html();
             $price_html = preg_replace( '/<[^>]*vip[^>]*>.*?<\/[^>]+>/i', '', $price_html );
-            $price_html = str_replace( 'Cena za VIP članove', '', $price_html );
+            $price_html = preg_replace( '/Cena za VIP.*/i', '', $price_html );
             $product_data[ $pid ] = array(
                 'img'   => $img ? $img : '',
                 'price' => $price_html,

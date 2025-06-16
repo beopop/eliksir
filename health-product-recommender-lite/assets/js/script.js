@@ -46,8 +46,8 @@ document.addEventListener('DOMContentLoaded',function(){
     const price=btn.querySelector('.hprl-price');
     if(price){
       let html=info.price||'';
-      html=html.replace(/Cena za VIP[^<]*<[^>]*>|Cena za VIP[^<]*/gi,'');
       html=html.replace(/<[^>]*vip[^>]*>.*?<\/[^>]+>/gi,'');
+      html=html.replace(/Cena za VIP[\s\S]*$/gi,'');
       price.innerHTML=html;
     }
     const nameEl=btn.querySelector('.hprl-name');
