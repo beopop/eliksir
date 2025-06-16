@@ -3,12 +3,12 @@
 #hprl-quiz input{width:100%;padding:8px;box-sizing:border-box;}
 #hprl-quiz button{padding:10px 20px;margin-top:10px;cursor:pointer;}
 .hprl-products{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch;}
-.hprl-products .hprl-select{flex:1 1 calc(50% - 10px);text-align:center;display:flex;flex-direction:column;justify-content:space-between;}
+.hprl-products .hprl-select{flex:1 1 calc(50% - 10px);text-align:center;display:flex;flex-direction:column;justify-content:space-between;padding:10px;border:1px solid #ccc;background:#fff;transition:transform .3s ease,box-shadow .3s ease;position:relative;}
 @media(max-width:600px){.hprl-products{flex-direction:column;}}
 .hprl-error{color:red;font-size:.9em;display:none;}
 #hprl-quiz .hprl-select img{max-width:120px;display:block;margin:0 auto 5px;}
 #hprl-quiz .hprl-name{display:block;font-weight:bold;margin-top:5px;font-size:18px;min-height:2.4em;}
-#hprl-quiz .hprl-price{display:block;margin-top:5px;}
+#hprl-quiz .hprl-price{display:block;margin-top:5px;font-size:20px;font-weight:bold;}
 #hprl-quiz .hprl-results-title{font-size:20px;font-weight:bold;}
 #hprl-quiz .hprl-select[data-type="premium"] .hprl-price{font-size:0.9em;}
 #hprl-quiz .hprl-label{display:block;font-size:.9em;color:#555;}
@@ -27,3 +27,7 @@
 #hprl-quiz .hprl-buy-now{display:inline-block;background:rgba(0,88,64,1);color:#fff;padding:8px 16px;border-radius:4px;margin-top:10px;font-size:16px;}
 #hprl-quiz .hprl-buy-now:hover{background:rgba(0,88,64,0.8);}
 .hprl-desc{margin-top:10px;font-size:.9em;color:#333;}
+.hprl-products .hprl-select:hover{transform:scale(1.05);box-shadow:0 4px 10px rgba(0,0,0,0.1);}
+#hprl-quiz .hprl-select[data-type="package"]{border-color:#005840;background:#e6f4ea;box-shadow:0 0 0 2px #005840;}
+#hprl-quiz .hprl-select[data-type="package"] .hprl-label{color:#005840;font-weight:bold;}
+#hprl-explanations .hprl-greeting{font-size:20px;font-weight:bold;display:block;margin-bottom:5px;}

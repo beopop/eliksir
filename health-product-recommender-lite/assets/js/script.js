@@ -44,7 +44,12 @@ document.addEventListener('DOMContentLoaded',function(){
       if(info.img){img.src=info.img;img.style.display='';}else{img.style.display='none';}
     }
     const price=btn.querySelector('.hprl-price');
-    if(price) price.innerHTML=info.price;
+    if(price){
+      let html=info.price||'';
+      html=html.replace(/Cena za VIP[^<]*<[^>]*>|Cena za VIP[^<]*/gi,'');
+      html=html.replace(/<[^>]*vip[^>]*>.*?<\/[^>]+>/gi,'');
+      price.innerHTML=html;
+    }
     const nameEl=btn.querySelector('.hprl-name');
     if(nameEl) nameEl.textContent=info.name;
   }
@@ -54,8 +59,8 @@ document.addEventListener('DOMContentLoaded',function(){
       const first=document.getElementById('hprl-first-name').value.trim();
       const last=document.getElementById('hprl-last-name').value.trim();
       const name=(first||last)?(first+' '+last).trim():'';
-      const greeting=name?`Poštovani/a ${name},`:'Poštovani/a,';
-      explBox.innerHTML=greeting+'<br>'+html;
+      const greeting=name?`Poštovani/a ${name}`:'Poštovani/a';
+      explBox.innerHTML=`<span class="hprl-greeting">${greeting}</span>`+'<br>'+html;
       explBox.style.display='block';
     }else{
       explBox.style.display='none';
