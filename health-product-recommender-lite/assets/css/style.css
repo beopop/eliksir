@@ -31,3 +31,8 @@
 #hprl-quiz .hprl-select[data-type="package"]{border-color:#005840;background:#e6f4ea;box-shadow:0 0 0 2px #005840;}
 #hprl-quiz .hprl-select[data-type="package"] .hprl-label{color:#005840;font-weight:bold;}
 #hprl-explanations .hprl-greeting{font-size:20px;font-weight:bold;display:block;margin-bottom:5px;}
+
+# Intro text styles
+#hprl-quiz .hprl-intro{text-align:center;padding:20px 10px;}
+#hprl-quiz .hprl-intro-title{font-size:24px;font-weight:bold;margin-bottom:5px;}
+#hprl-quiz .hprl-intro-desc{font-size:14px;margin-bottom:20px;}

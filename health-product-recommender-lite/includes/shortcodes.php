@@ -55,6 +55,10 @@ function hprl_quiz_shortcode() {
     <div id="hprl-quiz">
         <?php $step = 1; ?>
         <div class="hprl-step" data-step="<?php echo $step; ?>">
+            <div class="hprl-intro">
+                <div class="hprl-intro-title">Provera stanja vašeg organizma</div>
+                <div class="hprl-intro-desc">Odgovorite na 10 jednostavnih pitanja i dobijte besplatnu analizu, personalizovane savete i prirodnu terapiju za rešavanje uzroka problema.</div>
+            </div>
             <label>Ime*<br>
                 <input type="text" id="hprl-first-name" required>
                 <span class="hprl-error" id="hprl-first-name-error"></span>
