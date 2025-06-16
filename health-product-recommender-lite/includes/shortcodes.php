@@ -4,52 +4,34 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 add_shortcode( 'health_quiz', 'hprl_quiz_shortcode' );
 function hprl_quiz_shortcode() {
     $default_questions = array(
-        array( 'text' => 'Koliko cesto osecate umor?', 'answers' => array( 'Retko', 'Ponekad', 'Cesto' ) ),
-        array( 'text' => 'Da li imate problema sa varenjem?', 'answers' => array( 'Da', 'Ne' ) ),
+        array(
+            'text'    => 'Primer pitanja 1',
+            'answers' => array( 'Da', 'Ne' ),
+            'main'    => 0,
+            'extra'   => 0,
+            'package' => 0,
+            'note'    => ''
+        ),
     );
+
     $questions = get_option( 'hprl_questions', $default_questions );
-    $products  = get_option( 'hprl_products', array( 'cheap' => '', 'premium' => '' ) );
-    $combos    = get_option( 'hprl_combos', array() );
     $debug_log = intval( get_option( 'hprl_debug_log', 0 ) );
     $per_page  = intval( get_option( 'hprl_questions_per_page', 3 ) );
     if ( $per_page < 1 ) $per_page = 1;
     $question_pages = array_chunk( $questions, $per_page );
-    $combos_out = array();
-    foreach ( $combos as $c ) {
-        if ( empty( $c['answers'] ) ) {
-            continue;
-        }
-        if ( is_array( $c['answers'] ) ) {
-            $keys = hprl_cartesian_product( array_map( function( $v ) { return (array) $v; }, $c['answers'] ) );
-            foreach ( $keys as $k ) {
-                $combos_out[ implode( '|', $k ) ] = array(
-                    'cheap'   => $c['cheap'],
-                    'premium' => $c['premium'],
-                    'note'    => isset( $c['note'] ) ? $c['note'] : ''
-                );
-            }
-        } else {
-            $combos_out[ $c['answers'] ] = array(
-                'cheap'   => $c['cheap'],
-                'premium' => $c['premium'],
-                'note'    => isset( $c['note'] ) ? $c['note'] : ''
-            );
-        }
-    }
+
+    $universal_package = intval( get_option( 'hprl_universal_package', 0 ) );
 
     $product_ids = array();
-    foreach ( array( $products['cheap'], $products['premium'] ) as $pid ) {
-        if ( $pid ) {
-            $product_ids[] = $pid;
+    foreach ( $questions as $q ) {
+        foreach ( array( $q['main'], $q['extra'], $q['package'] ) as $pid ) {
+            if ( $pid ) {
+                $product_ids[] = $pid;
+            }
         }
     }
-    foreach ( $combos_out as $c ) {
-        if ( ! empty( $c['cheap'] ) ) {
-            $product_ids[] = $c['cheap'];
-        }
-        if ( ! empty( $c['premium'] ) ) {
-            $product_ids[] = $c['premium'];
-        }
+    if ( $universal_package ) {
+        $product_ids[] = $universal_package;
     }
     $product_ids = array_unique( $product_ids );
     $product_data = array();
@@ -61,6 +43,7 @@ function hprl_quiz_shortcode() {
                 'img'   => $img ? $img : '',
                 'price' => $prod->get_price_html(),
                 'name'  => $prod->get_name(),
+                'link'  => get_permalink( $pid ),
             );
         }
     }
@@ -114,36 +97,32 @@ function hprl_quiz_shortcode() {
         </div>
         <?php endforeach; $step++; ?>
         <div class="hprl-step" data-step="<?php echo $step; ?>" style="display:none;">
-            <p class="hprl-results-title">Preporucujemo sledece proizvode:</p>
+            <p class="hprl-results-title">Preporučujemo sledeće proizvode:</p>
             <div class="hprl-products">
-                <?php
-                $cheap_data   = isset( $product_data[ $products['cheap'] ] ) ? $product_data[ $products['cheap'] ] : array( 'img' => '', 'price' => '', 'name' => '' );
-                $premium_data = isset( $product_data[ $products['premium'] ] ) ? $product_data[ $products['premium'] ] : array( 'img' => '', 'price' => '', 'name' => '' );
-                ?>
-                <button class="hprl-select" data-type="cheap" data-product="<?php echo esc_attr( $products['cheap'] ); ?>">
-                    <?php if ( $cheap_data['img'] ) : ?>
-                        <img src="<?php echo esc_url( $cheap_data['img'] ); ?>" alt="">
-                    <?php endif; ?>
-                    <?php if ( $cheap_data['name'] ) : ?>
-                        <span class="hprl-name"><?php echo esc_html( $cheap_data['name'] ); ?></span>
-                    <?php endif; ?>
-                    <span class="hprl-price"><?php echo wp_kses_post( $cheap_data['price'] ); ?></span>
-                    <span class="hprl-label">Pakovanje za mesec dana</span>
+                <button class="hprl-select" data-type="main" data-product="">
+                    <img src="" alt="" style="display:none;">
+                    <span class="hprl-name"></span>
+                    <span class="hprl-price"></span>
+                    <span class="hprl-label">Glavni proizvod</span>
                     <span class="hprl-buy-now">Kupi sada</span>
                 </button>
-                <button class="hprl-select" data-type="premium" data-product="<?php echo esc_attr( $products['premium'] ); ?>">
-                    <?php if ( $premium_data['img'] ) : ?>
-                        <img src="<?php echo esc_url( $premium_data['img'] ); ?>" alt="">
-                    <?php endif; ?>
-                    <?php if ( $premium_data['name'] ) : ?>
-                        <span class="hprl-name"><?php echo esc_html( $premium_data['name'] ); ?></span>
-                    <?php endif; ?>
-                    <span class="hprl-price"><?php echo wp_kses_post( $premium_data['price'] ); ?></span>
-                    <span class="hprl-label">Jeftinija cena za dužu upotrebu</span>
+                <button class="hprl-select" data-type="extra" data-product="">
+                    <img src="" alt="" style="display:none;">
+                    <span class="hprl-name"></span>
+                    <span class="hprl-price"></span>
+                    <span class="hprl-label">Dodatni proizvod</span>
+                    <span class="hprl-buy-now">Kupi sada</span>
+                </button>
+                <button class="hprl-select" data-type="package" data-product="">
+                    <img src="" alt="" style="display:none;">
+                    <span class="hprl-name"></span>
+                    <span class="hprl-price"></span>
+                    <span class="hprl-label">Paket proizvoda</span>
                     <span class="hprl-buy-now">Kupi sada</span>
                 </button>
             </div>
             <div id="hprl-note" class="hprl-note" style="display:none;"></div>
+            <div id="hprl-explanations" class="hprl-note" style="display:none;"></div>
             <button class="hprl-prev">Nazad</button>
         </div>
         <div id="hprl-debug-container" style="display:none;">
@@ -155,15 +134,14 @@ function hprl_quiz_shortcode() {
     wp_enqueue_style( 'hprl-style', HPRL_URL . 'assets/css/style.css', array(), '1.0' );
     wp_enqueue_script( 'hprl-script', HPRL_URL . 'assets/js/script.js', array(), '1.0', true );
     wp_localize_script( 'hprl-script', 'hprlData', array(
-        'ajaxurl'  => admin_url( 'admin-ajax.php' ),
-        'nonce'    => wp_create_nonce( 'hprl_nonce' ),
-        'cheap'    => $products['cheap'],
-        'premium'  => $products['premium'],
-        'checkout' => wc_get_checkout_url(),
-        'cart_url' => wc_get_cart_url(),
-        'combos'   => $combos_out,
-        'products' => $product_data,
-        'debug'    => $debug_log
+        'ajaxurl'   => admin_url( 'admin-ajax.php' ),
+        'nonce'     => wp_create_nonce( 'hprl_nonce' ),
+        'checkout'  => wc_get_checkout_url(),
+        'cart_url'  => wc_get_cart_url(),
+        'products'  => $product_data,
+        'questions' => $questions,
+        'universal' => $universal_package,
+        'debug'     => $debug_log
     ) );
     return ob_get_clean();
 }

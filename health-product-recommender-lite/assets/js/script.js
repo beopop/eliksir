@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded',function(){
   const debugToggle=document.getElementById('hprl-debug-toggle');
   const debugLog=document.getElementById('hprl-debug-log');
   const noteBox=document.getElementById('hprl-note');
+  const explBox=document.getElementById('hprl-explanations');
   if(debugToggle){
     debugToggle.addEventListener('change',()=>{debugLog.style.display=debugToggle.checked?'block':'none';});
   }
@@ -35,27 +36,46 @@ document.addEventListener('DOMContentLoaded',function(){
     if(hprlData.products&&hprlData.products[id]){
       const info=hprlData.products[id];
       const img=btn.querySelector('img');
-      if(img&&info.img) img.src=info.img;
+      if(img){
+        if(info.img){img.src=info.img;img.style.display='';}else{img.style.display='none';}
+      }
       const price=btn.querySelector('.hprl-price');
       if(price) price.innerHTML=info.price;
       const nameEl=btn.querySelector('.hprl-name');
-      if(nameEl&&info.name) nameEl.textContent=info.name;
+      if(nameEl) nameEl.textContent=info.name;
     }
   }
+  function updateExplanations(html){
+    if(!explBox) return;
+    if(html){explBox.innerHTML=html;explBox.style.display='block';}else{explBox.style.display='none';}
+  }
+
   function applyResults(){
-    const indexes=gatherIndexes();
-    let cheap=hprlData.cheap;
-    let premium=hprlData.premium;
-    const key=indexes.join('|');
-    let note='';
-    if(hprlData.combos&&hprlData.combos[key]){
-      cheap=hprlData.combos[key].cheap;
-      premium=hprlData.combos[key].premium;
-      note=hprlData.combos[key].note||'';
-    }
-    updateProductInfo('cheap',cheap);
-    updateProductInfo('premium',premium);
-    updateNote(note);
+    const yesQuestions=[];
+    quiz.querySelectorAll('.hprl-question-group').forEach(g=>{
+      const sel=g.querySelector('input:checked');
+      if(sel&&sel.value.toLowerCase()==='da'){yesQuestions.push(parseInt(g.dataset.question));}
+    });
+    const count={main:{},extra:{},package:{}};
+    const notes=[];
+    yesQuestions.forEach(i=>{
+      const q=hprlData.questions[i];
+      if(!q) return;
+      if(q.main) count.main[q.main]=(count.main[q.main]||0)+1;
+      if(q.extra) count.extra[q.extra]=(count.extra[q.extra]||0)+1;
+      if(q.package) count.package[q.package]=(count.package[q.package]||0)+1;
+      if(q.note) notes.push(q.note);
+    });
+    function top(obj){let k=null,m=0;Object.keys(obj).forEach(key=>{if(obj[key]>m){m=obj[key];k=key;}});return k;}
+    let main=top(count.main)||'';
+    let extra=top(count.extra)||'';
+    let pack=top(count.package)||'';
+    if(hprlData.universal){pack=hprlData.universal;}
+    updateProductInfo('main',main);
+    updateProductInfo('extra',extra);
+    updateProductInfo('package',pack);
+    updateNote('');
+    updateExplanations(notes.join('<br>'));
   }
   function saveState(){
     try{
@@ -181,19 +201,7 @@ document.addEventListener('DOMContentLoaded',function(){
       }
       const next=step+1;
       if(next===steps.length){
-        const indexes=gatherIndexes();
-        let cheap=hprlData.cheap;
-        let premium=hprlData.premium;
-        const key=indexes.join('|');
-        let note='';
-        if(hprlData.combos&&hprlData.combos[key]){
-          cheap=hprlData.combos[key].cheap;
-          premium=hprlData.combos[key].premium;
-          note=hprlData.combos[key].note||'';
-        }
-        updateProductInfo('cheap',cheap);
-        updateProductInfo('premium',premium);
-        updateNote(note);
+        applyResults();
         const data=new FormData();
         data.append('action','hprl_save_answers');
         data.append('nonce',hprlData.nonce);
@@ -261,8 +269,5 @@ document.addEventListener('DOMContentLoaded',function(){
         .catch(()=>{alert('Greška pri dodavanju proizvoda.');showDebug('Network error');});
     });
   });
-  updateProductInfo('cheap',hprlData.cheap);
-  updateProductInfo('premium',hprlData.premium);
-  updateNote('');
   loadState();
 });
