@@ -32,23 +32,42 @@ document.addEventListener('DOMContentLoaded',function(){
   function updateProductInfo(type,id){
     const btn=quiz.querySelector('.hprl-select[data-type="'+type+'"]');
     if(!btn) return;
-    btn.dataset.product=id;
-    if(hprlData.products&&hprlData.products[id]){
-      const info=hprlData.products[id];
-      const img=btn.querySelector('img');
-      if(img){
-        if(info.img){img.src=info.img;img.style.display='';}else{img.style.display='none';}
-      }
-      const price=btn.querySelector('.hprl-price');
-      if(price) price.innerHTML=info.price;
-      const nameEl=btn.querySelector('.hprl-name');
-      if(nameEl) nameEl.textContent=info.name;
+    if(!id || !hprlData.products || !hprlData.products[id]){
+      btn.style.display='none';
+      return;
     }
+    btn.style.display='flex';
+    btn.dataset.product=id;
+    const info=hprlData.products[id];
+    const img=btn.querySelector('img');
+    if(img){
+      if(info.img){img.src=info.img;img.style.display='';}else{img.style.display='none';}
+    }
+    const price=btn.querySelector('.hprl-price');
+    if(price) price.innerHTML=info.price;
+    const nameEl=btn.querySelector('.hprl-name');
+    if(nameEl) nameEl.textContent=info.name;
   }
   function updateExplanations(html){
     if(!explBox) return;
-    if(html){explBox.innerHTML=html;explBox.style.display='block';}else{explBox.style.display='none';}
+    if(html){
+      const first=document.getElementById('hprl-first-name').value.trim();
+      const last=document.getElementById('hprl-last-name').value.trim();
+      const name=(first||last)?(first+' '+last).trim():'';
+      const greeting=name?`Poštovani/a ${name},`:'Poštovani/a,';
+      explBox.innerHTML=greeting+'<br>'+html;
+      explBox.style.display='block';
+    }else{
+      explBox.style.display='none';
+    }
   }
+
+  const allProducts=new Set();
+  hprlData.questions.forEach(q=>{
+    if(q.main) allProducts.add(String(q.main));
+    if(q.extra) allProducts.add(String(q.extra));
+    if(q.package) allProducts.add(String(q.package));
+  });
 
   function applyResults(){
     const yesQuestions=[];
@@ -58,22 +77,33 @@ document.addEventListener('DOMContentLoaded',function(){
     });
     const count={main:{},extra:{},package:{}};
     const notes=[];
+    const mentioned=new Set();
     yesQuestions.forEach(i=>{
       const q=hprlData.questions[i];
       if(!q) return;
       if(q.main) count.main[q.main]=(count.main[q.main]||0)+1;
       if(q.extra) count.extra[q.extra]=(count.extra[q.extra]||0)+1;
       if(q.package) count.package[q.package]=(count.package[q.package]||0)+1;
+      if(q.main) mentioned.add(String(q.main));
+      if(q.extra) mentioned.add(String(q.extra));
+      if(q.package) mentioned.add(String(q.package));
       if(q.note) notes.push(q.note);
     });
     function top(obj){let k=null,m=0;Object.keys(obj).forEach(key=>{if(obj[key]>m){m=obj[key];k=key;}});return k;}
     let main=top(count.main)||'';
     let extra=top(count.extra)||'';
     let pack=top(count.package)||'';
-    if(hprlData.universal){pack=hprlData.universal;}
+    let universal='';
+    if(hprlData.universal){
+      const allMentioned=[...allProducts].every(p=>mentioned.has(String(p)));
+      if(allMentioned){
+        universal=hprlData.universal;
+      }
+    }
     updateProductInfo('main',main);
     updateProductInfo('extra',extra);
     updateProductInfo('package',pack);
+    updateProductInfo('universal',universal);
     updateNote('');
     updateExplanations(notes.join('<br>'));
   }

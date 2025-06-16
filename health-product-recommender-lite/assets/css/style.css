@@ -26,3 +26,4 @@
 .hprl-question-group label.hprl-answer input:checked+span{background:rgba(0,88,64,1);color:#fff;border-color:rgba(0,88,64,1);}
 #hprl-quiz .hprl-buy-now{display:inline-block;background:rgba(0,88,64,1);color:#fff;padding:8px 16px;border-radius:4px;margin-top:10px;font-size:16px;}
 #hprl-quiz .hprl-buy-now:hover{background:rgba(0,88,64,0.8);}
+.hprl-desc{margin-top:10px;font-size:.9em;color:#333;}
