@@ -97,12 +97,16 @@ function hprl_quiz_shortcode() {
         </div>
         <?php endforeach; $step++; ?>
         <div class="hprl-step" data-step="<?php echo $step; ?>" style="display:none;">
-            <p class="hprl-results-title">Preporučujemo sledeće proizvode:</p>
+            <h2 class="hprl-results-title">Analiza organizma i savet za poboljšanje vašeg stanja</h2>
+            <div id="hprl-explanations" class="hprl-note" style="display:none;"></div>
+
+            <h2 class="hprl-results-title">Preporučujemo proizvode</h2>
             <div class="hprl-products">
                 <button class="hprl-select" data-type="main" data-product="">
                     <img src="" alt="" style="display:none;">
                     <span class="hprl-name"></span>
                     <span class="hprl-price"></span>
+                    <p class="hprl-desc">Ovo je glavni proizvod zbog analize vašeg organizma koji ga preporučuje.</p>
                     <span class="hprl-label">Glavni proizvod</span>
                     <span class="hprl-buy-now">Kupi sada</span>
                 </button>
@@ -110,6 +114,7 @@ function hprl_quiz_shortcode() {
                     <img src="" alt="" style="display:none;">
                     <span class="hprl-name"></span>
                     <span class="hprl-price"></span>
+                    <p class="hprl-desc">Ovo je dodatni proizvod koji preporučujemo radi bržeg oporavka organizma.</p>
                     <span class="hprl-label">Dodatni proizvod</span>
                     <span class="hprl-buy-now">Kupi sada</span>
                 </button>
@@ -117,12 +122,20 @@ function hprl_quiz_shortcode() {
                     <img src="" alt="" style="display:none;">
                     <span class="hprl-name"></span>
                     <span class="hprl-price"></span>
+                    <p class="hprl-desc">Najeftinije rešenje: kombinacija oba proizvoda u paketu – niža cena.</p>
                     <span class="hprl-label">Paket proizvoda</span>
+                    <span class="hprl-buy-now">Kupi sada</span>
+                </button>
+                <button class="hprl-select" data-type="universal" data-product="" style="display:none;">
+                    <img src="" alt="" style="display:none;">
+                    <span class="hprl-name"></span>
+                    <span class="hprl-price"></span>
+                    <p class="hprl-desc">Uzmite sve proizvode po najboljoj ceni i dajte svom organizmu pravu stvar.</p>
+                    <span class="hprl-label">Univerzalni paket</span>
                     <span class="hprl-buy-now">Kupi sada</span>
                 </button>
             </div>
             <div id="hprl-note" class="hprl-note" style="display:none;"></div>
-            <div id="hprl-explanations" class="hprl-note" style="display:none;"></div>
             <button class="hprl-prev">Nazad</button>
         </div>
         <div id="hprl-debug-container" style="display:none;">
