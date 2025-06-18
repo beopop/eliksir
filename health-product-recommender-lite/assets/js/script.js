@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded',function(){
   let saveAnswersPromise=null;
   const STORAGE_KEY='hprl_quiz_state';
   let currentStep=0;
+  const baseUrl=window.location.href.replace(/\/?zavrsena-anketa\/?$/,'');
   const debugMode=!!hprlData.debug;
   const debugContainer=document.getElementById('hprl-debug-container');
   const debugToggle=document.getElementById('hprl-debug-toggle');
@@ -156,6 +157,11 @@ document.addEventListener('DOMContentLoaded',function(){
   function showStep(index){
     currentStep=index;
     steps.forEach((s,i)=>{s.style.display=i===index?'block':'none';});
+    if(currentStep===steps.length-1){
+      history.replaceState({},'',baseUrl.replace(/\/?$/,'')+'/zavrsena-anketa');
+    }else{
+      history.replaceState({},'',baseUrl);
+    }
     saveState();
     steps[index].scrollIntoView({behavior:'smooth',block:'start'});
     window.scrollTo({top:0,behavior:'smooth'});
