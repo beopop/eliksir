@@ -97,3 +97,14 @@ function hprl_force_auto_update( $update, $item ) {
     }
     return $update;
 }
+
+// Redirects /zavrsena-anketa back to the quiz page so that refreshing the last
+// step doesn't result in a 404 page.
+add_action( 'template_redirect', 'hprl_handle_quiz_refresh' );
+function hprl_handle_quiz_refresh() {
+    if ( is_404() && ! empty( $_SERVER['REQUEST_URI'] ) && strpos( $_SERVER['REQUEST_URI'], 'zavrsena-anketa' ) !== false ) {
+        $base = preg_replace( '#zavrsena-anketa/?$#', '', $_SERVER['REQUEST_URI'] );
+        wp_safe_redirect( home_url( $base ) );
+        exit;
+    }
+}
