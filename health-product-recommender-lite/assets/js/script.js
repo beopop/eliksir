@@ -162,6 +162,10 @@ document.addEventListener('DOMContentLoaded',function(){
     }else{
       history.replaceState({},'',baseUrl);
     }
+    document.dispatchEvent(new CustomEvent('hprlQuizStepChange',{detail:{stepCount:steps.length,currentStep:index}}));
+    if(currentStep===steps.length-1){
+      document.dispatchEvent(new Event('hprlQuizComplete'));
+    }
     saveState();
     steps[index].scrollIntoView({behavior:'smooth',block:'start'});
     window.scrollTo({top:0,behavior:'smooth'});
