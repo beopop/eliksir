@@ -295,18 +295,23 @@ document.addEventListener('DOMContentLoaded',function(){
       data.append('nonce',hprlData.nonce);
       data.append('result_id',resultId||0);
       data.append('product',this.dataset.product);
-      fetch(hprlData.ajaxurl,{method:'POST',body:data,credentials:'same-origin'})
-        .then(r=>r.json())
-        .then(res=>{
-          if(res.success){
-            fetch(hprlData.cart_url+'?add-to-cart='+this.dataset.product,{credentials:'same-origin'})
-              .then(()=>{window.location=hprlData.checkout;});
-          }else{
-            alert('Greška pri dodavanju proizvoda.');
-            if(res.data&&res.data.log) showDebug(res.data.log);
-          }
-        })
-        .catch(()=>{alert('Greška pri dodavanju proizvoda.');showDebug('Network error');});
+
+      try{
+        fetch(hprlData.ajaxurl,{
+          method:'POST',
+          body:data,
+          credentials:'same-origin',
+          keepalive:true
+        });
+        fetch(hprlData.cart_url+'?add-to-cart='+this.dataset.product,{
+          credentials:'same-origin',
+          keepalive:true
+        });
+      }catch(e){
+        console.error('Greška pri dodavanju proizvoda.',e);
+      }
+
+      window.location=hprlData.checkout;
     });
   });
   loadState();
