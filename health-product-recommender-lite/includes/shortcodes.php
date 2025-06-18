@@ -103,6 +103,9 @@ function hprl_quiz_shortcode() {
         </div>
         <?php endforeach; $step++; ?>
         <div class="hprl-step" data-step="<?php echo $step; ?>" style="display:none;">
+            <div id="hprl-complete-notice" class="hprl-complete-notice" style="display:none;">
+                <strong>Ispod se nalazi vaš izveštaj za odgovore kao i proizvodi koje savetujemo za poboljšanje bolesti. U slučaju kupovine bilo kog proizvoda dobijate BESPLATNU konsultaciju od 10 minuta putem telefona sa savetnikom za zdravlje. Inače ova konsultacija košta 1990 RSD ali za Vas je besplatna prilikom kupovine bilo kog proizvoda.</strong>
+            </div>
             <h2 class="hprl-results-title">Analiza organizma i savet za poboljšanje vašeg stanja</h2>
             <div id="hprl-explanations" class="hprl-note" style="display:none;"></div>
 
@@ -152,6 +155,7 @@ function hprl_quiz_shortcode() {
     <?php
     wp_enqueue_style( 'hprl-style', HPRL_URL . 'assets/css/style.css', array(), '1.0' );
     wp_enqueue_script( 'hprl-script', HPRL_URL . 'assets/js/script.js', array(), '1.0', true );
+    wp_enqueue_script( 'hprl-notify', HPRL_URL . 'assets/js/notify.js', array( 'jquery', 'hprl-script' ), '1.0', true );
     wp_localize_script( 'hprl-script', 'hprlData', array(
         'ajaxurl'   => admin_url( 'admin-ajax.php' ),
         'nonce'     => wp_create_nonce( 'hprl_nonce' ),
