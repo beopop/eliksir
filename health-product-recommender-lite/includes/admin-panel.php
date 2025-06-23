@@ -255,8 +255,11 @@ function hprl_results_page() {
         <h1 class="wp-heading-inline">Rezultati</h1>
         <a href="?page=hprl-results&export=1" class="page-title-action">Export CSV</a>
         <form method="post">
-            <?php $table->search_box( 'Pretraga', 'hprl-search' ); ?>
-            <?php $table->display(); ?>
+            <?php
+            wp_nonce_field( 'bulk-' . $table->_args['plural'] );
+            $table->search_box( 'Pretraga', 'hprl-search' );
+            $table->display();
+            ?>
         </form>
     </div>
     <?php

@@ -55,6 +55,10 @@ class HPRL_Results_Table extends WP_List_Table {
         );
     }
 
+    public function no_items() {
+        echo 'Nema rezultata.';
+    }
+
     public function column_cb( $item ) {
         return sprintf( '<input type="checkbox" name="hprl_selected[]" value="%d" />', $item['id'] );
     }
