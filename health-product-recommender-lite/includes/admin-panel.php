@@ -244,70 +244,20 @@ function hprl_questions_page() {
 }
 
 function hprl_results_page() {
-    global $wpdb;
-    if ( isset( $_POST['hprl_delete_selected'] ) && ! empty( $_POST['hprl_selected'] ) ) {
-        check_admin_referer( 'hprl_delete_selected' );
-        $ids = array_map( 'intval', (array) $_POST['hprl_selected'] );
-        foreach ( $ids as $id ) {
-            if ( $id > 0 ) {
-                $wpdb->delete( HPRL_TABLE, array( 'id' => $id ) );
-            }
-        }
-        echo '<div class="updated"><p>Obrisani selektovani rezultati.</p></div>';
-    }
-    if ( isset( $_GET['delete'] ) ) {
-        $id = intval( $_GET['delete'] );
-        if ( $id > 0 ) {
-            $wpdb->delete( HPRL_TABLE, array( 'id' => $id ) );
-        }
-    }
-    $results = $wpdb->get_results( "SELECT * FROM " . HPRL_TABLE . " ORDER BY created_at DESC" );
+    require_once HPRL_DIR . 'includes/results-table.php';
+
+    $table = new HPRL_Results_Table();
+    $table->process_bulk_action();
+    $table->prepare_items();
+
     ?>
     <div class="wrap">
-        <h1>Rezultati</h1>
-        <p>
-            <a href="?page=hprl-results&export=1" class="button">Export CSV</a>
-        </p>
+        <h1 class="wp-heading-inline">Rezultati</h1>
+        <a href="?page=hprl-results&export=1" class="page-title-action">Export CSV</a>
         <form method="post">
-            <?php wp_nonce_field( 'hprl_delete_selected' ); ?>
-            <table class="widefat">
-                <thead>
-                <tr>
-                    <th style="width:20px"><input type="checkbox" id="hprl-select-all"></th>
-                    <th>ID</th><th>Ime</th><th>Prezime</th><th>Email</th><th>Telefon</th><th>Godina</th><th>Mesto</th><th>Odgovori</th><th>Proizvod</th><th>Datum</th><th>Akcija</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php foreach ( $results as $row ) : ?>
-                    <tr>
-                        <td><input type="checkbox" name="hprl_selected[]" value="<?php echo esc_attr( $row->id ); ?>"></td>
-                        <td><?php echo esc_html( $row->id ); ?></td>
-                    <td><?php echo esc_html( $row->first_name ); ?></td>
-                    <td><?php echo esc_html( $row->last_name ); ?></td>
-                    <td><?php echo esc_html( $row->email ); ?></td>
-                    <td><?php echo esc_html( $row->phone ); ?></td>
-                    <td><?php echo esc_html( $row->birth_year ); ?></td>
-                    <td><?php echo esc_html( $row->location ); ?></td>
-                    <?php $ans = maybe_unserialize( $row->answers ); ?>
-                    <?php if ( ! is_array( $ans ) ) $ans = array( $ans ); ?>
-                    <td><?php echo esc_html( implode( ',', $ans ) ); ?></td>
-                    <?php $product_title = $row->product_id ? get_the_title( $row->product_id ) : ''; ?>
-                    <td><?php echo esc_html( $product_title ); ?></td>
-                    <td><?php echo esc_html( $row->created_at ); ?></td>
-                    <td><a href="?page=hprl-results&delete=<?php echo intval( $row->id ); ?>" onclick="return confirm('Obrisati ovaj unos?');">Obriši</a></td>
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-        <p><input type="submit" name="hprl_delete_selected" class="button" value="Obriši selektovane" onclick="return confirm('Obrisati selektovane unose?');"></p>
+            <?php $table->search_box( 'Pretraga', 'hprl-search' ); ?>
+            <?php $table->display(); ?>
         </form>
     </div>
-    <script>
-    jQuery(function($){
-        $('#hprl-select-all').on('change',function(){
-            $('input[name="hprl_selected[]"]').prop('checked', this.checked);
-        });
-    });
-    </script>
     <?php
 }
