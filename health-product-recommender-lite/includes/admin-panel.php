@@ -5,7 +5,25 @@ add_action( 'admin_menu', 'hprl_admin_menu' );
 function hprl_admin_menu() {
     add_menu_page( 'Health Quiz', 'Health Quiz', 'manage_options', 'hprl-questions', 'hprl_questions_page', 'dashicons-heart' );
     add_submenu_page( 'hprl-questions', 'Pitanja', 'Pitanja', 'manage_options', 'hprl-questions', 'hprl_questions_page' );
-    add_submenu_page( 'hprl-questions', 'Rezultati', 'Rezultati', 'manage_options', 'hprl-results', 'hprl_results_page' );
+    $hook = add_submenu_page( 'hprl-questions', 'Rezultati', 'Rezultati', 'manage_options', 'hprl-results', 'hprl_results_page' );
+    add_action( "load-$hook", 'hprl_results_screen_options' );
+}
+
+add_filter( 'set-screen-option', 'hprl_set_screen_option', 10, 3 );
+function hprl_set_screen_option( $status, $option, $value ) {
+    if ( 'hprl_results_per_page' === $option ) {
+        return (int) $value;
+    }
+    return $status;
+}
+
+function hprl_results_screen_options() {
+    $args = array(
+        'label'   => 'Rezultata po stranici',
+        'default' => 20,
+        'option'  => 'hprl_results_per_page',
+    );
+    add_screen_option( 'per_page', $args );
 }
 
 add_action( 'admin_init', 'hprl_handle_export' );
@@ -243,71 +261,116 @@ function hprl_questions_page() {
     <?php
 }
 
+if ( ! class_exists( 'WP_List_Table' ) ) {
+    require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+}
+
+class HPRL_Results_List_Table extends WP_List_Table {
+    public function __construct() {
+        parent::__construct( array(
+            'singular' => 'result',
+            'plural'   => 'results',
+            'ajax'     => false,
+        ) );
+    }
+
+    public function get_columns() {
+        return array(
+            'cb'         => '<input type="checkbox" />',
+            'id'         => 'ID',
+            'first_name' => 'Ime',
+            'last_name'  => 'Prezime',
+            'email'      => 'Email',
+            'phone'      => 'Telefon',
+            'birth_year' => 'Godina',
+            'location'   => 'Mesto',
+            'answers'    => 'Odgovori',
+            'product'    => 'Proizvod',
+            'created_at' => 'Datum',
+            'actions'    => 'Akcija',
+        );
+    }
+
+    protected function column_cb( $item ) {
+        return sprintf( '<input type="checkbox" name="hprl_selected[]" value="%s" />', $item->id );
+    }
+
+    protected function column_default( $item, $column_name ) {
+        switch ( $column_name ) {
+            case 'product':
+                return $item->product_id ? get_the_title( $item->product_id ) : '';
+            case 'answers':
+                $ans = maybe_unserialize( $item->answers );
+                if ( ! is_array( $ans ) ) {
+                    $ans = array( $ans );
+                }
+                return esc_html( implode( ',', $ans ) );
+            case 'actions':
+                $url = wp_nonce_url( admin_url( 'admin.php?page=hprl-results&action=delete&id=' . $item->id ), 'hprl_delete_result_' . $item->id );
+                return '<a href="' . esc_url( $url ) . '" onclick="return confirm(\'Obrisati ovaj unos?\');">Obriši</a>';
+            default:
+                return esc_html( $item->$column_name );
+        }
+    }
+
+    protected function get_bulk_actions() {
+        return array( 'delete' => 'Obriši' );
+    }
+
+    public function process_bulk_action() {
+        if ( 'delete' === $this->current_action() && ! empty( $_POST['hprl_selected'] ) ) {
+            check_admin_referer( 'bulk-' . $this->_args['plural'] );
+            global $wpdb;
+            $ids = array_map( 'intval', (array) $_POST['hprl_selected'] );
+            foreach ( $ids as $id ) {
+                if ( $id > 0 ) {
+                    $wpdb->delete( HPRL_TABLE, array( 'id' => $id ) );
+                }
+            }
+            echo '<div class="updated"><p>Obrisani selektovani rezultati.</p></div>';
+        }
+    }
+
+    public function prepare_items() {
+        global $wpdb;
+        $per_page     = $this->get_items_per_page( 'hprl_results_per_page', 20 );
+        $current_page = $this->get_pagenum();
+        $offset       = ( $current_page - 1 ) * $per_page;
+
+        $total_items = (int) $wpdb->get_var( "SELECT COUNT(*) FROM " . HPRL_TABLE );
+        $this->items = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM " . HPRL_TABLE . " ORDER BY created_at DESC LIMIT %d OFFSET %d", $per_page, $offset ) );
+
+        $this->set_pagination_args( array(
+            'total_items' => $total_items,
+            'per_page'    => $per_page,
+        ) );
+    }
+}
+
 function hprl_results_page() {
     global $wpdb;
-    if ( isset( $_POST['hprl_delete_selected'] ) && ! empty( $_POST['hprl_selected'] ) ) {
-        check_admin_referer( 'hprl_delete_selected' );
-        $ids = array_map( 'intval', (array) $_POST['hprl_selected'] );
-        foreach ( $ids as $id ) {
-            if ( $id > 0 ) {
-                $wpdb->delete( HPRL_TABLE, array( 'id' => $id ) );
-            }
-        }
-        echo '<div class="updated"><p>Obrisani selektovani rezultati.</p></div>';
-    }
-    if ( isset( $_GET['delete'] ) ) {
-        $id = intval( $_GET['delete'] );
-        if ( $id > 0 ) {
+
+    if ( isset( $_GET['action'] ) && 'delete' === $_GET['action'] && ! empty( $_GET['id'] ) ) {
+        $id = intval( $_GET['id'] );
+        if ( wp_verify_nonce( $_GET['_wpnonce'], 'hprl_delete_result_' . $id ) ) {
             $wpdb->delete( HPRL_TABLE, array( 'id' => $id ) );
+            echo '<div class="updated"><p>Obrisani rezultati.</p></div>';
         }
     }
-    $results = $wpdb->get_results( "SELECT * FROM " . HPRL_TABLE . " ORDER BY created_at DESC" );
+
+    $table = new HPRL_Results_List_Table();
+    $table->process_bulk_action();
+    $table->prepare_items();
+
     ?>
     <div class="wrap">
         <h1>Rezultati</h1>
-        <p>
-            <a href="?page=hprl-results&export=1" class="button">Export CSV</a>
-        </p>
+        <p><a href="?page=hprl-results&export=1" class="button">Export CSV</a></p>
         <form method="post">
-            <?php wp_nonce_field( 'hprl_delete_selected' ); ?>
-            <table class="widefat">
-                <thead>
-                <tr>
-                    <th style="width:20px"><input type="checkbox" id="hprl-select-all"></th>
-                    <th>ID</th><th>Ime</th><th>Prezime</th><th>Email</th><th>Telefon</th><th>Godina</th><th>Mesto</th><th>Odgovori</th><th>Proizvod</th><th>Datum</th><th>Akcija</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php foreach ( $results as $row ) : ?>
-                    <tr>
-                        <td><input type="checkbox" name="hprl_selected[]" value="<?php echo esc_attr( $row->id ); ?>"></td>
-                        <td><?php echo esc_html( $row->id ); ?></td>
-                    <td><?php echo esc_html( $row->first_name ); ?></td>
-                    <td><?php echo esc_html( $row->last_name ); ?></td>
-                    <td><?php echo esc_html( $row->email ); ?></td>
-                    <td><?php echo esc_html( $row->phone ); ?></td>
-                    <td><?php echo esc_html( $row->birth_year ); ?></td>
-                    <td><?php echo esc_html( $row->location ); ?></td>
-                    <?php $ans = maybe_unserialize( $row->answers ); ?>
-                    <?php if ( ! is_array( $ans ) ) $ans = array( $ans ); ?>
-                    <td><?php echo esc_html( implode( ',', $ans ) ); ?></td>
-                    <?php $product_title = $row->product_id ? get_the_title( $row->product_id ) : ''; ?>
-                    <td><?php echo esc_html( $product_title ); ?></td>
-                    <td><?php echo esc_html( $row->created_at ); ?></td>
-                    <td><a href="?page=hprl-results&delete=<?php echo intval( $row->id ); ?>" onclick="return confirm('Obrisati ovaj unos?');">Obriši</a></td>
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-        <p><input type="submit" name="hprl_delete_selected" class="button" value="Obriši selektovane" onclick="return confirm('Obrisati selektovane unose?');"></p>
+            <?php
+            $table->display();
+            ?>
         </form>
     </div>
-    <script>
-    jQuery(function($){
-        $('#hprl-select-all').on('change',function(){
-            $('input[name="hprl_selected[]"]').prop('checked', this.checked);
-        });
-    });
-    </script>
     <?php
 }
