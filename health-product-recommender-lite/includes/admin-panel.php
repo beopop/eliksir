@@ -291,7 +291,8 @@ function hprl_results_page() {
                     <?php $ans = maybe_unserialize( $row->answers ); ?>
                     <?php if ( ! is_array( $ans ) ) $ans = array( $ans ); ?>
                     <td><?php echo esc_html( implode( ',', $ans ) ); ?></td>
-                    <td><?php echo esc_html( $row->product_id ); ?></td>
+                    <?php $product_title = $row->product_id ? get_the_title( $row->product_id ) : ''; ?>
+                    <td><?php echo esc_html( $product_title ); ?></td>
                     <td><?php echo esc_html( $row->created_at ); ?></td>
                     <td><a href="?page=hprl-results&delete=<?php echo intval( $row->id ); ?>" onclick="return confirm('Obrisati ovaj unos?');">Obriši</a></td>
                 </tr>
