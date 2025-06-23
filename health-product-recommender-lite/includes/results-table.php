@@ -19,7 +19,7 @@ class HPRL_Results_Table extends WP_List_Table {
         );
     }
 
-    protected function get_columns() {
+    public function get_columns() {
         return array(
             'cb'         => '<input type="checkbox" />',
             'id'         => 'ID',
@@ -36,7 +36,7 @@ class HPRL_Results_Table extends WP_List_Table {
         );
     }
 
-    protected function get_sortable_columns() {
+    public function get_sortable_columns() {
         return array(
             'id'         => array( 'id', false ),
             'first_name' => array( 'first_name', false ),
@@ -49,17 +49,17 @@ class HPRL_Results_Table extends WP_List_Table {
         );
     }
 
-    protected function get_bulk_actions() {
+    public function get_bulk_actions() {
         return array(
             'delete' => 'Obriši',
         );
     }
 
-    protected function column_cb( $item ) {
+    public function column_cb( $item ) {
         return sprintf( '<input type="checkbox" name="hprl_selected[]" value="%d" />', $item['id'] );
     }
 
-    protected function column_actions( $item ) {
+    public function column_actions( $item ) {
         $url = wp_nonce_url( add_query_arg( array(
             'page'   => 'hprl-results',
             'action' => 'delete',
