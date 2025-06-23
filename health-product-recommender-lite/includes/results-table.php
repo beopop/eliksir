@@ -95,7 +95,11 @@ class HPRL_Results_Table extends WP_List_Table {
         $orderby  = ! empty( $_REQUEST['orderby'] ) ? sanitize_text_field( $_REQUEST['orderby'] ) : 'created_at';
         $order    = ( ! empty( $_REQUEST['order'] ) && strtolower( $_REQUEST['order'] ) === 'asc' ) ? 'ASC' : 'DESC';
 
+        $columns  = $this->get_columns();
+        $hidden   = array();
         $sortable = $this->get_sortable_columns();
+        $this->_column_headers = array( $columns, $hidden, $sortable );
+
         if ( ! array_key_exists( $orderby, $sortable ) ) {
             $orderby = 'created_at';
         }
