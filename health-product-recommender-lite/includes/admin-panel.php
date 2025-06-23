@@ -1,11 +1,29 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+add_filter( 'set-screen-option', 'hprl_set_screen_option', 10, 3 );
+function hprl_set_screen_option( $status, $option, $value ) {
+    if ( 'hprl_results_per_page' === $option ) {
+        return (int) $value;
+    }
+    return $status;
+}
+
 add_action( 'admin_menu', 'hprl_admin_menu' );
 function hprl_admin_menu() {
     add_menu_page( 'Health Quiz', 'Health Quiz', 'manage_options', 'hprl-questions', 'hprl_questions_page', 'dashicons-heart' );
     add_submenu_page( 'hprl-questions', 'Pitanja', 'Pitanja', 'manage_options', 'hprl-questions', 'hprl_questions_page' );
-    add_submenu_page( 'hprl-questions', 'Rezultati', 'Rezultati', 'manage_options', 'hprl-results', 'hprl_results_page' );
+    $hook = add_submenu_page( 'hprl-questions', 'Rezultati', 'Rezultati', 'manage_options', 'hprl-results', 'hprl_results_page' );
+    add_action( "load-$hook", 'hprl_results_screen_option' );
+}
+
+function hprl_results_screen_option() {
+    $args = array(
+        'label'   => 'Rezultata po strani',
+        'default' => 20,
+        'option'  => 'hprl_results_per_page',
+    );
+    add_screen_option( 'per_page', $args );
 }
 
 add_action( 'admin_init', 'hprl_handle_export' );
@@ -22,7 +40,7 @@ function hprl_handle_export() {
 
     global $wpdb;
     $rows = $wpdb->get_results( "SELECT * FROM " . HPRL_TABLE . " ORDER BY created_at DESC", ARRAY_A );
-    $header = array( 'ID','First Name','Last Name','Email','Phone','Birth Year','Location','Answers','Product ID','Date' );
+    $header = array( 'ID','First Name','Last Name','Email','Phone','Birth Year','Location','Answers','Product','Date' );
 
     header( 'Content-Type: text/csv' );
     header( 'Content-Disposition: attachment; filename="hprl-results.csv"' );
@@ -38,7 +56,7 @@ function hprl_handle_export() {
             $row['birth_year'],
             $row['location'],
             implode( ',', maybe_unserialize( $row['answers'] ) ),
-            $row['product_id'],
+            $row['product_id'] ? get_the_title( $row['product_id'] ) : '',
             $row['created_at'],
         ) );
     }

@@ -90,7 +90,7 @@ class HPRL_Results_Table extends WP_List_Table {
     public function prepare_items() {
         global $wpdb;
 
-        $per_page = 20;
+        $per_page = $this->get_items_per_page( 'hprl_results_per_page', 20 );
         $search   = isset( $_REQUEST['s'] ) ? trim( wp_unslash( $_REQUEST['s'] ) ) : '';
         $orderby  = ! empty( $_REQUEST['orderby'] ) ? sanitize_text_field( $_REQUEST['orderby'] ) : 'created_at';
         $order    = ( ! empty( $_REQUEST['order'] ) && strtolower( $_REQUEST['order'] ) === 'asc' ) ? 'ASC' : 'DESC';
