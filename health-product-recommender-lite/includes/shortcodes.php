@@ -108,6 +108,9 @@ function hprl_quiz_shortcode() {
             </div>
             <h2 class="hprl-results-title">Analiza organizma i savet za poboljšanje vašeg stanja</h2>
             <div id="hprl-status" class="hprl-status" style="display:none;"></div>
+            <div id="hprl-gauge" class="hprl-gauge" style="display:none;">
+                <div class="hprl-gauge-needle"></div>
+            </div>
             <div id="hprl-explanations" class="hprl-note" style="display:none;"></div>
 
             <h2 class="hprl-results-title">Preporučujemo proizvode</h2>
