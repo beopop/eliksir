@@ -14,8 +14,10 @@ document.addEventListener('DOMContentLoaded',function(){
   const noteBox=document.getElementById('hprl-note');
   const explBox=document.getElementById('hprl-explanations');
   const statusBox=document.getElementById('hprl-status');
+  const gaugeWrapper=document.getElementById('hprl-overall');
   const gaugeBox=document.getElementById('hprl-gauge');
   const gaugeNeedle=gaugeBox?gaugeBox.querySelector('.hprl-gauge-needle'):null;
+  const gaugeCount=document.getElementById('hprl-gauge-count');
   if(debugToggle){
     debugToggle.addEventListener('change',()=>{debugLog.style.display=debugToggle.checked?'block':'none';});
   }
@@ -88,9 +90,13 @@ document.addEventListener('DOMContentLoaded',function(){
         statusBox.style.display='none';
       }
     }
+    if(gaugeWrapper) gaugeWrapper.style.display='block';
     if(gaugeBox && gaugeNeedle){
       gaugeBox.style.display='block';
       gaugeNeedle.className='hprl-gauge-needle '+level;
+    }
+    if(gaugeCount){
+      gaugeCount.textContent='Broj DA odgovora: '+count+'. U odnosu količine DA odgovora ovo je grafikon vašeg stanja organizma.';
     }
   }
 

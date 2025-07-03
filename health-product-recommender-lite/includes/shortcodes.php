@@ -107,10 +107,19 @@ function hprl_quiz_shortcode() {
                 <strong>Ispod se nalazi vaš izveštaj za odgovore kao i proizvodi koje savetujemo za poboljšanje bolesti. U slučaju kupovine bilo kog proizvoda dobijate BESPLATNU konsultaciju od 10 minuta putem telefona sa savetnikom za zdravlje. Inače ova konsultacija košta 1990 RSD ali za Vas je besplatna prilikom kupovine bilo kog proizvoda.</strong>
             </div>
             <h2 class="hprl-results-title">Analiza organizma i savet za poboljšanje vašeg stanja</h2>
-            <div id="hprl-status" class="hprl-status" style="display:none;"></div>
-            <div id="hprl-gauge" class="hprl-gauge" style="display:none;">
-                <div class="hprl-gauge-needle"></div>
+            <div id="hprl-overall" class="hprl-overall" style="display:none;">
+                <h3>Opšte stanje vašeg organizma</h3>
+                <div id="hprl-gauge" class="hprl-gauge">
+                    <div class="hprl-gauge-needle"></div>
+                </div>
+                <div class="hprl-gauge-labels">
+                    <span>normalno stanje</span>
+                    <span>alarmantno</span>
+                    <span>veoma alarmantno</span>
+                </div>
+                <div id="hprl-gauge-count" class="hprl-gauge-count"></div>
             </div>
+            <div id="hprl-status" class="hprl-status" style="display:none;"></div>
             <div id="hprl-explanations" class="hprl-note" style="display:none;"></div>
 
             <h2 class="hprl-results-title">Preporučujemo proizvode</h2>
