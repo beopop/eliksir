@@ -14,6 +14,8 @@ document.addEventListener('DOMContentLoaded',function(){
   const noteBox=document.getElementById('hprl-note');
   const explBox=document.getElementById('hprl-explanations');
   const statusBox=document.getElementById('hprl-status');
+  const gaugeBox=document.getElementById('hprl-gauge');
+  const gaugeNeedle=gaugeBox?gaugeBox.querySelector('.hprl-gauge-needle'):null;
   if(debugToggle){
     debugToggle.addEventListener('change',()=>{debugLog.style.display=debugToggle.checked?'block':'none';});
   }
@@ -68,21 +70,27 @@ document.addEventListener('DOMContentLoaded',function(){
     }
   }
   function updateStatus(count){
-    if(!statusBox) return;
+    if(!statusBox && !gaugeBox) return;
     let level='green';
     if(count>=7) level='red';
     else if(count>=4) level='orange';
-    statusBox.className='hprl-status '+level;
-    let texts=hprlData.status_texts||{};
-    let html='';
-    if(level==='green') html=texts.low||'';
-    else if(level==='orange') html=texts.mid||'';
-    else html=texts.high||'';
-    if(html){
-      statusBox.innerHTML=html;
-      statusBox.style.display='block';
-    }else{
-      statusBox.style.display='none';
+    if(statusBox){
+      statusBox.className='hprl-status '+level;
+      let texts=hprlData.status_texts||{};
+      let html='';
+      if(level==='green') html=texts.low||'';
+      else if(level==='orange') html=texts.mid||'';
+      else html=texts.high||'';
+      if(html){
+        statusBox.innerHTML=html;
+        statusBox.style.display='block';
+      }else{
+        statusBox.style.display='none';
+      }
+    }
+    if(gaugeBox && gaugeNeedle){
+      gaugeBox.style.display='block';
+      gaugeNeedle.className='hprl-gauge-needle '+level;
     }
   }
 

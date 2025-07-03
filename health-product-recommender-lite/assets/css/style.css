@@ -43,3 +43,9 @@
 .hprl-status.green{background:#28a745;}
 .hprl-status.orange{background:#fd7e14;}
 .hprl-status.red{background:#dc3545;}
+
+/* Gauge indicator */
+.hprl-gauge{width:150px;height:75px;border:10px solid #ccc;border-bottom:none;border-radius:150px 150px 0 0;position:relative;margin:20px auto;}
+.hprl-gauge-needle{position:absolute;bottom:0;left:50%;width:2px;height:70px;background:#28a745;transform-origin:bottom center;transform:rotate(-60deg);transition:transform .3s ease;}
+.hprl-gauge-needle.orange{background:#fd7e14;transform:rotate(0deg);}
+.hprl-gauge-needle.red{background:#dc3545;transform:rotate(60deg);}
