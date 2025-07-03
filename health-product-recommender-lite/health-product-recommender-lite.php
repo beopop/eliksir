@@ -3,7 +3,7 @@
 Plugin Name: Health Product Recommender Lite
 Plugin URI: https://beohosting.com/plugins/health-product-recommender-lite
 Description: Lagani, responzivni WordPress plugin koji generiše preporuke proizvoda na osnovu zdravstvenog upitnika, potpuno kompatibilan sa Woodmart temom i Elementorom.
-Version: 1.5.1
+Version: 1.5.2
 Author: BeoHosting
 Author URI: https://beohosting.com
 License: GPL2+
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 define( 'HPRL_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HPRL_URL', plugin_dir_url( __FILE__ ) );
-define( 'HPRL_VERSION', '1.5.1' );
+define( 'HPRL_VERSION', '1.5.2' );
 define( 'HPRL_UPDATE_REPO', 'beopop/eliksir' );
 define( 'HPRL_UPDATE_ASSET', 'health-product-recommender-lite.zip' );
 if ( ! defined( 'HPRL_GITHUB_TOKEN' ) ) {
@@ -33,6 +33,10 @@ function hprl_maybe_create_table() {
         $column = $wpdb->get_results( "SHOW COLUMNS FROM `" . HPRL_TABLE . "` LIKE 'product_id'" );
         if ( empty( $column ) ) {
             $wpdb->query( "ALTER TABLE `" . HPRL_TABLE . "` ADD `product_id` bigint(20) NOT NULL DEFAULT 0 AFTER `answers`" );
+        }
+        $column = $wpdb->get_results( "SHOW COLUMNS FROM `" . HPRL_TABLE . "` LIKE 'order_id'" );
+        if ( empty( $column ) ) {
+            $wpdb->query( "ALTER TABLE `" . HPRL_TABLE . "` ADD `order_id` bigint(20) NOT NULL DEFAULT 0 AFTER `product_id`" );
         }
         $column = $wpdb->get_results( "SHOW COLUMNS FROM `" . HPRL_TABLE . "` LIKE 'first_name'" );
         if ( empty( $column ) ) {
@@ -59,6 +63,7 @@ function hprl_activate() {
         location varchar(200) DEFAULT '',
         answers text NOT NULL,
         product_id bigint(20) NOT NULL,
+        order_id bigint(20) NOT NULL DEFAULT 0,
         created_at datetime NOT NULL,
         PRIMARY KEY (id)
     ) $charset_collate";
@@ -106,5 +111,18 @@ function hprl_handle_quiz_refresh() {
         $base = preg_replace( '#zavrsena-anketa/?$#', '', $_SERVER['REQUEST_URI'] );
         wp_safe_redirect( home_url( $base ) );
         exit;
+    }
+}
+
+add_action( 'woocommerce_checkout_order_processed', 'hprl_save_order_to_result', 10, 3 );
+function hprl_save_order_to_result( $order_id, $posted_data, $order ) {
+    if ( empty( $_COOKIE['hprl_result_id'] ) ) {
+        return;
+    }
+    $result_id = intval( $_COOKIE['hprl_result_id'] );
+    if ( $result_id > 0 ) {
+        global $wpdb;
+        $wpdb->update( HPRL_TABLE, array( 'order_id' => $order_id ), array( 'id' => $result_id ) );
+        setcookie( 'hprl_result_id', '', time() - DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
     }
 }

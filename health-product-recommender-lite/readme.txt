@@ -3,7 +3,7 @@ Contributors: BeoHosting
 Tags: quiz, health, recommendations
 Requires at least: 6.0
 Tested up to: 6.5
-Stable tag: 1.5.1
+Stable tag: 1.5.2
 License: GPL2+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,3 +51,6 @@ Lagani, responzivni WordPress plugin koji generiše preporuke proizvoda na osnov
 
 = 1.5.1 =
 * Dodata vizuelna oznaka nivoa alarmantnosti sa prilagodljivim tekstom.
+
+= 1.5.2 =
+* Rezultati sada prikazuju broj porudžbine ako je kupovina obavljena preko ankete.
