@@ -109,6 +109,15 @@ function hprl_questions_page() {
         $universal = isset( $_POST['universal_package'] ) ? intval( $_POST['universal_package'] ) : 0;
         update_option( 'hprl_universal_package', $universal );
 
+        $status_low  = isset( $_POST['status_low'] ) ? wp_kses_post( $_POST['status_low'] ) : '';
+        $status_mid  = isset( $_POST['status_mid'] ) ? wp_kses_post( $_POST['status_mid'] ) : '';
+        $status_high = isset( $_POST['status_high'] ) ? wp_kses_post( $_POST['status_high'] ) : '';
+        update_option( 'hprl_status_texts', array(
+            'low'  => $status_low,
+            'mid'  => $status_mid,
+            'high' => $status_high,
+        ) );
+
         echo '<div class="updated"><p>Sačuvano.</p></div>';
     }
 
@@ -127,6 +136,11 @@ function hprl_questions_page() {
     $debug_log = intval( get_option( 'hprl_debug_log', 0 ) );
     $github_token = get_option( 'hprl_github_token', '' );
     $universal_package = intval( get_option( 'hprl_universal_package', 0 ) );
+    $status_texts = get_option( 'hprl_status_texts', array(
+        'low'  => '',
+        'mid'  => '',
+        'high' => '',
+    ) );
     $per_page  = intval( get_option( 'hprl_questions_per_page', 3 ) );
     $max_q = count( $questions );
 
@@ -225,6 +239,18 @@ function hprl_questions_page() {
                         <input type="text" name="github_token" value="<?php echo esc_attr( $github_token ); ?>" class="regular-text" />
                         <br/><small>Personal access token za ažuriranje sa privatnog repozitorijuma</small>
                     </td>
+                </tr>
+                <tr>
+                    <th>Tekst za 0-3 "Da" odgovora</th>
+                    <td><?php wp_editor( $status_texts['low'], 'status_low', array( 'textarea_name' => 'status_low', 'teeny' => true, 'media_buttons' => false, 'textarea_rows' => 3 ) ); ?></td>
+                </tr>
+                <tr>
+                    <th>Tekst za 4-6 "Da" odgovora</th>
+                    <td><?php wp_editor( $status_texts['mid'], 'status_mid', array( 'textarea_name' => 'status_mid', 'teeny' => true, 'media_buttons' => false, 'textarea_rows' => 3 ) ); ?></td>
+                </tr>
+                <tr>
+                    <th>Tekst za 7+ "Da" odgovora</th>
+                    <td><?php wp_editor( $status_texts['high'], 'status_high', array( 'textarea_name' => 'status_high', 'teeny' => true, 'media_buttons' => false, 'textarea_rows' => 3 ) ); ?></td>
                 </tr>
                 </tbody>
             </table>

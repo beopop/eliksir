@@ -8,3 +8,4 @@ delete_option( 'hprl_questions' );
 delete_option( 'hprl_products' );
 delete_option( 'hprl_universal_package' );
 delete_option( 'hprl_github_token' );
+delete_option( 'hprl_status_texts' );
