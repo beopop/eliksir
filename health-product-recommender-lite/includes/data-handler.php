@@ -31,6 +31,7 @@ function hprl_save_quiz() {
         'location'   => $location,
         'answers'    => maybe_serialize( $answers ),
         'product_id' => $product_id,
+        'order_id'   => 0,
         'created_at' => current_time( 'mysql' )
     ] );
 
@@ -75,6 +76,7 @@ function hprl_save_answers() {
         'location'   => $location,
         'answers'    => maybe_serialize( $answers ),
         'product_id' => 0,
+        'order_id'   => 0,
         'created_at' => current_time( 'mysql' )
     ] );
 
@@ -108,6 +110,7 @@ function hprl_set_product() {
             }
             wp_send_json_error( $resp );
         }
+        setcookie( 'hprl_result_id', $id, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
         wp_send_json_success();
     }
     wp_send_json_error();

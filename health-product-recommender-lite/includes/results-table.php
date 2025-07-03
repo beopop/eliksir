@@ -31,6 +31,7 @@ class HPRL_Results_Table extends WP_List_Table {
             'location'   => 'Mesto',
             'answers'    => 'Odgovori',
             'product_id' => 'Proizvod',
+            'order_id'   => 'Porudžbina',
             'created_at' => 'Datum',
             'actions'    => 'Akcija',
         );
@@ -46,6 +47,7 @@ class HPRL_Results_Table extends WP_List_Table {
             'birth_year' => array( 'birth_year', false ),
             'location'   => array( 'location', false ),
             'created_at' => array( 'created_at', true ),
+            'order_id'   => array( 'order_id', false ),
         );
     }
 
@@ -82,6 +84,12 @@ class HPRL_Results_Table extends WP_List_Table {
                 return esc_html( implode( ',', $ans ) );
             case 'product_id':
                 return esc_html( $item['product_title'] );
+            case 'order_id':
+                if ( ! empty( $item['order_id'] ) ) {
+                    $url = admin_url( 'post.php?post=' . intval( $item['order_id'] ) . '&action=edit' );
+                    return '<a href="' . esc_url( $url ) . '">#' . intval( $item['order_id'] ) . '</a>';
+                }
+                return '';
             default:
                 return isset( $item[ $column_name ] ) ? esc_html( $item[ $column_name ] ) : '';
         }
