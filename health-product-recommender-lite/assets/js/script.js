@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded',function(){
   const debugLog=document.getElementById('hprl-debug-log');
   const noteBox=document.getElementById('hprl-note');
   const explBox=document.getElementById('hprl-explanations');
+  const statusBox=document.getElementById('hprl-status');
   if(debugToggle){
     debugToggle.addEventListener('change',()=>{debugLog.style.display=debugToggle.checked?'block':'none';});
   }
@@ -66,6 +67,24 @@ document.addEventListener('DOMContentLoaded',function(){
       explBox.style.display='none';
     }
   }
+  function updateStatus(count){
+    if(!statusBox) return;
+    let level='green';
+    if(count>=7) level='red';
+    else if(count>=4) level='orange';
+    statusBox.className='hprl-status '+level;
+    let texts=hprlData.status_texts||{};
+    let html='';
+    if(level==='green') html=texts.low||'';
+    else if(level==='orange') html=texts.mid||'';
+    else html=texts.high||'';
+    if(html){
+      statusBox.innerHTML=html;
+      statusBox.style.display='block';
+    }else{
+      statusBox.style.display='none';
+    }
+  }
 
   const allProducts=new Set();
   hprlData.questions.forEach(q=>{
@@ -111,6 +130,7 @@ document.addEventListener('DOMContentLoaded',function(){
     updateProductInfo('universal',universal);
     updateNote('');
     updateExplanations(notes.join('<br>'));
+    updateStatus(yesQuestions.length);
   }
   function saveState(){
     try{

@@ -39,3 +39,7 @@
 
 /* Notice shown after quiz completion */
 .hprl-complete-notice{border:2px solid #ffc107;background:#fff8e1;padding:15px;margin-bottom:20px;text-align:center;font-weight:bold;border-radius:4px;}
+.hprl-status{padding:10px;margin-top:15px;border-radius:4px;color:#fff;font-weight:bold;text-align:center;}
+.hprl-status.green{background:#28a745;}
+.hprl-status.orange{background:#fd7e14;}
+.hprl-status.red{background:#dc3545;}
