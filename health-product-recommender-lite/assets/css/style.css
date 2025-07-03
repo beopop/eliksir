@@ -46,6 +46,12 @@
 
 /* Gauge indicator */
 .hprl-gauge{width:150px;height:75px;border:10px solid #ccc;border-bottom:none;border-radius:150px 150px 0 0;position:relative;margin:20px auto;}
-.hprl-gauge-needle{position:absolute;bottom:0;left:50%;width:2px;height:70px;background:#28a745;transform-origin:bottom center;transform:rotate(-60deg);transition:transform .3s ease;}
+.hprl-gauge-needle{position:absolute;bottom:0;left:50%;width:8px;height:70px;background:#28a745;transform-origin:bottom center;transform:rotate(-60deg);transition:transform .3s ease;}
 .hprl-gauge-needle.orange{background:#fd7e14;transform:rotate(0deg);}
 .hprl-gauge-needle.red{background:#dc3545;transform:rotate(60deg);}
+.hprl-gauge-labels{display:flex;justify-content:space-between;margin-top:5px;font-size:12px;font-weight:bold;}
+.hprl-gauge-labels span{flex:1;text-align:center;}
+.hprl-gauge-labels span:first-child{text-align:left;}
+.hprl-gauge-labels span:last-child{text-align:right;}
+.hprl-gauge-count{text-align:center;margin-top:5px;font-weight:bold;}
+.hprl-overall h3{text-align:center;margin-bottom:5px;}
