@@ -45,7 +45,8 @@
 .hprl-status.red{background:#dc3545;}
 
 /* Gauge indicator */
-.hprl-gauge{width:150px;height:75px;border:10px solid #ccc;border-bottom:none;border-radius:150px 150px 0 0;position:relative;margin:20px auto;}
+.hprl-gauge{width:150px;height:75px;position:relative;margin:20px auto;overflow:hidden;}
+.hprl-gauge::before{content:"";position:absolute;inset:0;border-radius:150px 150px 0 0;background:conic-gradient(from 180deg,#28a745 0deg 60deg,#fd7e14 60deg 120deg,#dc3545 120deg 180deg);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 10px));mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 10px));}
 .hprl-gauge-needle{position:absolute;bottom:0;left:50%;width:8px;height:70px;background:#28a745;transform-origin:bottom center;transform:rotate(-60deg);transition:transform .3s ease;}
 .hprl-gauge-needle.orange{background:#fd7e14;transform:rotate(0deg);}
 .hprl-gauge-needle.red{background:#dc3545;transform:rotate(60deg);}
